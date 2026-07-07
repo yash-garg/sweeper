@@ -6,7 +6,9 @@ import 'arb.dart';
 import 'config.dart';
 import 'usage_scanner.dart';
 
+/// The outcome of analyzing a project for unused translation keys.
 class SweepResult {
+  /// Creates a result; see the field docs for the meaning of each value.
   SweepResult({
     required this.unusedKeys,
     required this.totalKeys,
@@ -19,14 +21,19 @@ class SweepResult {
   /// Total translatable keys in the template ARB.
   final int totalKeys;
 
+  /// Number of Dart files that were resolved and scanned.
   final int scannedFileCount;
 
+  /// Whether any unused keys were found.
   bool get hasUnused => unusedKeys.isNotEmpty;
 }
 
+/// The outcome of a [SweepEngine.clean] run.
 class CleanResult {
+  /// Creates a result; see the field docs for the meaning of each value.
   CleanResult({required this.analysis, required this.removedPerFile});
 
+  /// The analysis the removals were based on.
   final SweepResult analysis;
 
   /// ARB file path → number of keys removed from it (sorted by path).
@@ -36,10 +43,16 @@ class CleanResult {
 /// Orchestrates config loading, scanning, and the unused-key computation:
 /// unused = templateKeys − usedKeys − keepGlobs.
 class SweepEngine {
+  /// Creates an engine for the package at [projectRoot] (the directory
+  /// containing `l10n.yaml` and `pubspec.yaml`).
   SweepEngine({required this.projectRoot});
 
+  /// Absolute path to the project being swept.
   final String projectRoot;
 
+  /// Finds unused translation keys without modifying anything.
+  ///
+  /// Keys matching any glob in [keepPatterns] are treated as used.
   Future<SweepResult> analyze({List<String> keepPatterns = const []}) async {
     final config = SweeperConfig.load(projectRoot);
     final template = _parseArb(config.templateArbPath);
@@ -66,6 +79,12 @@ class SweepEngine {
     );
   }
 
+  /// Removes unused translation keys (and their `@key` metadata) from every
+  /// ARB file in the configured ARB directory.
+  ///
+  /// All files are parsed before any is written (all-or-nothing), and writes
+  /// are atomic. With [dryRun], nothing is written and the returned
+  /// [CleanResult] describes what would have been removed.
   Future<CleanResult> clean({
     List<String> keepPatterns = const [],
     bool dryRun = false,
