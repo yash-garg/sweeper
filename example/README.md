@@ -55,6 +55,14 @@ Sorted 2 of 2 ARB files.
   lib/l10n/intl_en.arb
 ```
 
+## Monorepos
+
+Count usage from sibling packages that consume the same translations:
+
+```sh
+dart run sweeper check --scan ../packages/feature_a
+```
+
 ## Keys accessed dynamically
 
 Static analysis cannot see keys whose names are constructed at runtime.

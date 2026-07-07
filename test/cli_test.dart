@@ -78,6 +78,20 @@ void main() {
     expect(result.stdout, isNot(contains('\x1B[')));
   });
 
+  test('check --scan counts usage in an extra package root', () {
+    final addonRoot = p.absolute(p.join('test', 'fixtures', 'demo_addon'));
+    final pub =
+        Process.runSync('dart', ['pub', 'get'], workingDirectory: addonRoot);
+    expect(pub.exitCode, 0, reason: pub.stderr.toString());
+
+    final result =
+        runCli(['check', '--json', '--scan', addonRoot], cwd: demoRoot);
+    expect(result.exitCode, 1);
+    final decoded = jsonDecode(result.stdout as String);
+    expect(decoded['unused'], isNot(contains('unusedPlain')));
+    expect(decoded['unused'], contains('unusedKey'));
+  });
+
   test('sort exits 0 and sorts a copy of the fixture ARBs', () {
     final tmp = Directory.systemTemp.createTempSync('sweeper_sort_');
     addTearDown(() => tmp.deleteSync(recursive: true));

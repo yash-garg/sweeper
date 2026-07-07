@@ -1,0 +1,6 @@
+test/
+.github/
+flake.nix
+flake.lock
+.envrc
+docs/

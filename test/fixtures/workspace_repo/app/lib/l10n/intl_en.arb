@@ -1,0 +1,6 @@
+{
+  "@@locale": "en",
+  "usedHere": "Used in the app itself",
+  "usedInAddon": "Used only by the sibling workspace member",
+  "neverUsed": "Unused everywhere"
+}

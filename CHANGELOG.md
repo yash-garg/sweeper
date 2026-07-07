@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0
+
+- New `--scan`/`-s` flag on `check` and `clean`: include additional package
+  roots (monorepo siblings) when scanning for key usage.
+- Pub workspaces are detected automatically: all workspace members are
+  scanned for key usage, and the shared root `package_config.json` is found
+  by walking up parent directories.
+
 ## 0.3.0
 
 - New `sort` command: alphabetizes keys in all ARB files, keeping `@@`

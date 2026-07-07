@@ -9,6 +9,7 @@ import 'package:analyzer/diagnostic/diagnostic.dart';
 import 'package:path/path.dart' as p;
 
 import 'exceptions.dart';
+import 'workspace.dart';
 
 class UsageScanException extends SweeperException {
   UsageScanException(super.message);
@@ -31,10 +32,15 @@ class UsageScanner {
     required this.projectRoot,
     required this.outputClass,
     required this.excludedDir,
+    this.extraRoots = const [],
   });
 
   final String projectRoot;
   final String outputClass;
+
+  /// Additional package roots (e.g. monorepo siblings) whose sources are
+  /// also scanned for usage.
+  final List<String> extraRoots;
 
   /// Generated-code directory (gen-l10n `output-dir`); skipped so the
   /// generated class's own code never counts as usage.
@@ -43,18 +49,23 @@ class UsageScanner {
   static const _scanRoots = ['lib', 'bin', 'test', 'integration_test'];
 
   Future<UsageScanResult> scan() async {
-    final packageConfig =
-        File(p.join(projectRoot, '.dart_tool', 'package_config.json'));
-    if (!packageConfig.existsSync()) {
+    if (findPackageConfig(projectRoot) == null) {
       throw UsageScanException(
-          'No .dart_tool/package_config.json in $projectRoot. '
+          'No .dart_tool/package_config.json found for $projectRoot. '
           'Run `dart pub get` (or `flutter pub get`) first.');
     }
 
-    final includedPaths = _scanRoots
-        .map((dir) => p.join(projectRoot, dir))
-        .where((dir) => Directory(dir).existsSync())
-        .toList();
+    for (final root in extraRoots) {
+      if (!Directory(root).existsSync()) {
+        throw UsageScanException('Scan root not found: $root');
+      }
+    }
+
+    final includedPaths = [
+      for (final root in [projectRoot, ...extraRoots])
+        for (final dir in _scanRoots.map((d) => p.join(root, d)))
+          if (Directory(dir).existsSync()) dir,
+    ];
     if (includedPaths.isEmpty) {
       throw UsageScanException('No Dart source directories found to scan '
           '(looked for ${_scanRoots.join(', ')} in $projectRoot).');
