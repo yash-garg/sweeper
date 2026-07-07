@@ -1,12 +1,12 @@
 name: sweeper
 description: Finds and removes unused gen-l10n translation keys from ARB files using resolved static analysis.
-version: 0.2.1
+version: 0.2.2
 repository: https://github.com/yash-garg/sweeper
 environment:
   sdk: ^3.5.0
 
 dependencies:
-  analyzer: ^14.0.0
+  analyzer: '>=10.0.0 <15.0.0'
   args: ^2.5.0
   glob: ^2.1.2
   path: ^1.9.0

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.2
+
+- Widened `analyzer` constraint to `>=10.0.0 <15.0.0` so sweeper can coexist
+  with packages pinned to older analyzer majors (e.g. dart_code_linter).
+  Full test suite verified against analyzer 10.0.0 and 14.0.0.
+
 ## 0.2.1
 
 - README: full commands & flags reference (including `--quiet`).
