@@ -13,7 +13,8 @@ Future<void> main(List<String> arguments) async {
         'using resolved static analysis.',
   )
     ..addCommand(_CheckCommand())
-    ..addCommand(_CleanCommand());
+    ..addCommand(_CleanCommand())
+    ..addCommand(_SortCommand());
 
   try {
     exitCode = await runner.run(arguments) ?? 0;
@@ -38,6 +39,30 @@ Reporter _reporter(ArgResults results) => Reporter(
       ansi: stdout.supportsAnsiEscapes,
       quiet: results['quiet'] as bool,
     );
+
+class _SortCommand extends Command<int> {
+  _SortCommand() {
+    argParser.addFlag('quiet',
+        abbr: 'q',
+        help: 'Print summary only, without listing changed files.',
+        negatable: false);
+  }
+
+  @override
+  String get name => 'sort';
+
+  @override
+  String get description =>
+      'Sort the keys of all ARB files alphabetically (metadata stays '
+      'attached, @@ headers stay first).';
+
+  @override
+  Future<int> run() async {
+    final result = SweepEngine(projectRoot: Directory.current.path).sort();
+    _reporter(argResults!).sort(result);
+    return 0;
+  }
+}
 
 class _CheckCommand extends Command<int> {
   _CheckCommand() {

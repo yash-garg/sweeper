@@ -40,6 +40,18 @@ class CleanResult {
   final Map<String, int> removedPerFile;
 }
 
+/// The outcome of a [SweepEngine.sort] run.
+class SortResult {
+  /// Creates a result; see the field docs for the meaning of each value.
+  SortResult({required this.changedPerFile});
+
+  /// ARB file path → whether sorting changed its key order.
+  final Map<String, bool> changedPerFile;
+
+  /// Number of files whose order changed.
+  int get changedCount => changedPerFile.values.where((c) => c).length;
+}
+
 /// Orchestrates config loading, scanning, and the unused-key computation:
 /// unused = templateKeys − usedKeys − keepGlobs.
 class SweepEngine {
@@ -92,22 +104,7 @@ class SweepEngine {
     final config = SweeperConfig.load(projectRoot);
     final analysis = await analyze(keepPatterns: keepPatterns);
 
-    final arbDir = Directory(config.arbDir);
-    if (!arbDir.existsSync()) {
-      throw SweeperConfigException('ARB directory not found: ${config.arbDir}');
-    }
-    final arbPaths = arbDir
-        .listSync()
-        .whereType<File>()
-        .map((f) => f.path)
-        .where((path) => path.endsWith('.arb'))
-        .toList()
-      ..sort();
-
-    // Parse every file BEFORE writing anything: all-or-nothing.
-    final documents = [
-      for (final path in arbPaths) _parseArb(path),
-    ];
+    final documents = _arbDocuments(config);
 
     final removedPerFile = <String, int>{};
     for (final doc in documents) {
@@ -121,6 +118,39 @@ class SweepEngine {
       }
     }
     return CleanResult(analysis: analysis, removedPerFile: removedPerFile);
+  }
+
+  /// Alphabetizes the keys of every ARB file in the configured ARB
+  /// directory, keeping `@@` header entries first and `@key` metadata
+  /// attached to its key. Files already in order are not rewritten.
+  SortResult sort() {
+    final config = SweeperConfig.load(projectRoot);
+    final changedPerFile = <String, bool>{};
+    for (final doc in _arbDocuments(config)) {
+      final changed = doc.sortKeys();
+      changedPerFile[doc.path] = changed;
+      if (changed) {
+        _writeAtomic(doc.path, doc.serialize());
+      }
+    }
+    return SortResult(changedPerFile: changedPerFile);
+  }
+
+  /// Parses every `.arb` file in the ARB directory (sorted by path) BEFORE
+  /// anything is written: all-or-nothing.
+  List<ArbDocument> _arbDocuments(SweeperConfig config) {
+    final arbDir = Directory(config.arbDir);
+    if (!arbDir.existsSync()) {
+      throw SweeperConfigException('ARB directory not found: ${config.arbDir}');
+    }
+    final arbPaths = arbDir
+        .listSync()
+        .whereType<File>()
+        .map((f) => f.path)
+        .where((path) => path.endsWith('.arb'))
+        .toList()
+      ..sort();
+    return [for (final path in arbPaths) _parseArb(path)];
   }
 
   void _writeAtomic(String path, String content) {

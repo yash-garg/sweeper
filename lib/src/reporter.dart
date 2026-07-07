@@ -63,6 +63,21 @@ class Reporter {
     _writeStats(analysis);
   }
 
+  void sort(SortResult result) {
+    final changed = result.changedCount;
+    final total = result.changedPerFile.length;
+    if (changed == 0) {
+      _out.writeln(_green('✓ All $total ARB files already sorted.'));
+      return;
+    }
+    _out.writeln(_green('Sorted $changed of $total ARB files.'));
+    if (!quiet) {
+      for (final entry in result.changedPerFile.entries) {
+        if (entry.value) _out.writeln('  ${_dim(entry.key)}');
+      }
+    }
+  }
+
   void _writeStats(SweepResult result) {
     _out.writeln(_dim('${result.totalKeys} keys · '
         '${result.unusedKeys.length} unused · '

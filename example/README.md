@@ -43,6 +43,18 @@ dart run sweeper clean --dry-run
 dart run sweeper clean
 ```
 
+## Keep ARB files tidy
+
+Sort keys alphabetically in every ARB file (`@@locale` headers stay first,
+`@key` metadata stays attached to its key):
+
+```sh
+$ dart run sweeper sort
+Sorted 2 of 2 ARB files.
+  lib/l10n/intl_de.arb
+  lib/l10n/intl_en.arb
+```
+
 ## Keys accessed dynamically
 
 Static analysis cannot see keys whose names are constructed at runtime.

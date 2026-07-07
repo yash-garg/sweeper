@@ -78,6 +78,28 @@ void main() {
     expect(result.stdout, isNot(contains('\x1B[')));
   });
 
+  test('sort exits 0 and sorts a copy of the fixture ARBs', () {
+    final tmp = Directory.systemTemp.createTempSync('sweeper_sort_');
+    addTearDown(() => tmp.deleteSync(recursive: true));
+    for (final name in ['l10n.yaml', 'pubspec.yaml']) {
+      File(p.join(demoRoot, name)).copySync(p.join(tmp.path, name));
+    }
+    Directory(p.join(tmp.path, 'lib', 'l10n')).createSync(recursive: true);
+    for (final name in ['intl_en.arb', 'intl_de.arb']) {
+      File(p.join(demoRoot, 'lib', 'l10n', name))
+          .copySync(p.join(tmp.path, 'lib', 'l10n', name));
+    }
+
+    final result = runCli(['sort'], cwd: tmp.path);
+    expect(result.exitCode, 0, reason: result.stderr.toString());
+    expect(result.stdout, contains('2'));
+
+    final en =
+        File(p.join(tmp.path, 'lib', 'l10n', 'intl_en.arb')).readAsStringSync();
+    expect(
+        en.indexOf('"dynamicGreetingA"'), lessThan(en.indexOf('"itemCount"')));
+  });
+
   test('unknown command exits nonzero with usage', () {
     final result = runCli(['bogus'], cwd: demoRoot);
     expect(result.exitCode, isNot(0));

@@ -56,6 +56,41 @@ void main() {
     expect(ArbDocument.parse('a.arb', compact).serialize(), compact);
   });
 
+  test('sortKeys orders keys alphabetically, header first, metadata attached',
+      () {
+    const unsorted = '''
+{
+  "@@locale": "en",
+  "zebra": "Z",
+  "@zebra": {
+    "description": "z"
+  },
+  "apple": "A",
+  "mango": "M"
+}
+''';
+    final doc = ArbDocument.parse('a.arb', unsorted);
+    expect(doc.sortKeys(), isTrue);
+    expect(doc.serialize(), '''
+{
+  "@@locale": "en",
+  "apple": "A",
+  "mango": "M",
+  "zebra": "Z",
+  "@zebra": {
+    "description": "z"
+  }
+}
+''');
+  });
+
+  test('sortKeys returns false when already sorted', () {
+    const sorted = '{\n  "@@locale": "en",\n  "a": "x",\n  "b": "y"\n}\n';
+    final doc = ArbDocument.parse('a.arb', sorted);
+    expect(doc.sortKeys(), isFalse);
+    expect(doc.serialize(), sorted);
+  });
+
   test('throws ArbParseException on invalid JSON, naming the file', () {
     expect(
       () => ArbDocument.parse('bad.arb', '{ not json'),

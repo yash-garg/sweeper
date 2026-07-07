@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.0
+
+- New `sort` command: alphabetizes keys in all ARB files, keeping `@@`
+  headers first and `@key` metadata attached to its key.
+
 ## 0.2.2
 
 - Widened `analyzer` constraint to `>=10.0.0 <15.0.0` so sweeper can coexist

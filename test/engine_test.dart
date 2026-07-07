@@ -111,6 +111,28 @@ void main() {
     expect(en, isNot(contains('"unusedKey"')));
   });
 
+  test('sort orders all ARB files and reports which changed', () async {
+    final root = copyFixtureToTemp();
+    final dePath = p.join(root, 'lib', 'l10n', 'intl_de.arb');
+    final enPath = p.join(root, 'lib', 'l10n', 'intl_en.arb');
+
+    final result = SweepEngine(projectRoot: root).sort();
+    expect(result.changedPerFile, {dePath: true, enPath: true});
+
+    final de = File(dePath).readAsStringSync();
+    final deKeys = RegExp(r'^  "([^@"][^"]*)":', multiLine: true)
+        .allMatches(de)
+        .map((m) => m.group(1))
+        .toList();
+    expect(deKeys, ['germanOnly', 'languageName', 'unusedKey', 'usedDirect']);
+    // Metadata still attached to its key.
+    expect(de.indexOf('"@unusedKey"'), greaterThan(de.indexOf('"unusedKey"')));
+
+    // Second run: nothing changes.
+    final again = SweepEngine(projectRoot: root).sort();
+    expect(again.changedPerFile, {dePath: false, enPath: false});
+  });
+
   test('clean aborts before writing anything if any ARB is invalid', () async {
     final root = copyFixtureToTemp();
     final enPath = p.join(root, 'lib', 'l10n', 'intl_en.arb');

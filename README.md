@@ -57,6 +57,16 @@ any is written (all-or-nothing), and writes are atomic.
 | `--dry-run` | `-n` | Show what would be removed without writing files. |
 | `--quiet` | `-q` | Print the summary only, without listing keys or per-file counts. |
 
+### `sweeper sort`
+
+Sorts the keys of every ARB file alphabetically. `@@locale`-style header
+entries stay first, and `@key` metadata stays attached to its key. Files
+already in order are left untouched. Always exits `0` (or `2` on error).
+
+| Flag | | Description |
+| --- | --- | --- |
+| `--quiet` | `-q` | Print summary only, without listing changed files. |
+
 Output is colored when attached to a terminal and plain when piped or in CI.
 
 ## How it works
