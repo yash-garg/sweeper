@@ -1,5 +1,8 @@
 # sweeper
 
+[![pub package](https://img.shields.io/pub/v/sweeper.svg)](https://pub.dev/packages/sweeper)
+[![CI](https://github.com/yash-garg/sweeper/actions/workflows/ci.yaml/badge.svg)](https://github.com/yash-garg/sweeper/actions/workflows/ci.yaml)
+
 Finds and removes unused gen-l10n translation keys from ARB files — using
 **resolved static analysis**, not name heuristics, so a key is only reported
 unused when no real reference to its generated getter/method exists.
