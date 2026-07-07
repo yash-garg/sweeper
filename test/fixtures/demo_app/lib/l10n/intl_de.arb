@@ -1,0 +1,10 @@
+{
+  "@@locale": "de",
+  "languageName": "Deutsch",
+  "usedDirect": "Direkt benutzt",
+  "unusedKey": "Nie benutzt",
+  "@unusedKey": {
+    "description": "Has metadata that must be removed with it"
+  },
+  "germanOnly": "Nur auf Deutsch"
+}

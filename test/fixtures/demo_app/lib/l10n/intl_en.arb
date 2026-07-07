@@ -1,0 +1,23 @@
+{
+  "@@locale": "en",
+  "languageName": "English",
+  "usedDirect": "Used directly",
+  "usedViaField": "Used via a field",
+  "usedViaAlias": "Used via an aliased variable",
+  "usedOnSubclass": "Used through a locale subclass",
+  "itemCount": "{count} items",
+  "@itemCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "unusedKey": "Never referenced",
+  "@unusedKey": {
+    "description": "Has metadata that must be removed with it"
+  },
+  "unusedPlain": "Never referenced, no metadata",
+  "dynamicGreetingA": "Accessed dynamically at runtime",
+  "dynamicGreetingB": "Accessed dynamically at runtime"
+}
