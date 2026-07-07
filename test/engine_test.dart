@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:path/path.dart' as p;
+import 'package:sweeper/src/arb.dart';
 import 'package:sweeper/src/config.dart';
 import 'package:sweeper/src/engine.dart';
 import 'package:test/test.dart';
@@ -44,5 +45,83 @@ void main() {
       throwsA(isA<SweeperConfigException>()
           .having((e) => e.message, 'message', contains('app_en.arb'))),
     );
+  });
+
+  String copyFixtureToTemp() {
+    final tmp = Directory.systemTemp.createTempSync('sweeper_clean_');
+    addTearDown(() => tmp.deleteSync(recursive: true));
+    for (final entity in Directory(fixtureRoot).listSync(recursive: true)) {
+      final relative = p.relative(entity.path, from: fixtureRoot);
+      if (p.split(relative).contains('.dart_tool')) continue;
+      final target = p.join(tmp.path, relative);
+      if (entity is Directory) {
+        Directory(target).createSync(recursive: true);
+      } else if (entity is File) {
+        File(target).createSync(recursive: true);
+        entity.copySync(target);
+      }
+    }
+    final pub =
+        Process.runSync('dart', ['pub', 'get'], workingDirectory: tmp.path);
+    expect(pub.exitCode, 0, reason: pub.stderr.toString());
+    return tmp.path;
+  }
+
+  test('clean removes unused keys and metadata from all ARB files', () async {
+    final root = copyFixtureToTemp();
+    final result = await SweepEngine(projectRoot: root).clean();
+
+    expect(result.analysis.unusedKeys, hasLength(5));
+    final enPath = p.join(root, 'lib', 'l10n', 'intl_en.arb');
+    final dePath = p.join(root, 'lib', 'l10n', 'intl_de.arb');
+    expect(result.removedPerFile, {dePath: 2, enPath: 5});
+
+    final en = File(enPath).readAsStringSync();
+    expect(en, isNot(contains('"unusedKey"')));
+    expect(en, isNot(contains('"@unusedKey"')));
+    expect(en, isNot(contains('"languageName"')));
+    expect(en, contains('"usedDirect"'));
+    expect(en, contains('"@itemCount"'));
+
+    final de = File(dePath).readAsStringSync();
+    expect(de, isNot(contains('"unusedKey"')));
+    // Keys absent from the template are left alone.
+    expect(de, contains('"germanOnly"'));
+    expect(de, contains('"usedDirect"'));
+  });
+
+  test('clean --dry-run reports removals but writes nothing', () async {
+    final root = copyFixtureToTemp();
+    final enPath = p.join(root, 'lib', 'l10n', 'intl_en.arb');
+    final before = File(enPath).readAsStringSync();
+
+    final result = await SweepEngine(projectRoot: root).clean(dryRun: true);
+
+    expect(result.removedPerFile.values.reduce((a, b) => a + b), 7);
+    expect(File(enPath).readAsStringSync(), before);
+  });
+
+  test('clean honors keep patterns', () async {
+    final root = copyFixtureToTemp();
+    await SweepEngine(projectRoot: root)
+        .clean(keepPatterns: ['dynamicGreeting*']);
+    final en = File(p.join(root, 'lib', 'l10n', 'intl_en.arb'))
+        .readAsStringSync();
+    expect(en, contains('"dynamicGreetingA"'));
+    expect(en, isNot(contains('"unusedKey"')));
+  });
+
+  test('clean aborts before writing anything if any ARB is invalid',
+      () async {
+    final root = copyFixtureToTemp();
+    final enPath = p.join(root, 'lib', 'l10n', 'intl_en.arb');
+    final badPath = p.join(root, 'lib', 'l10n', 'intl_fr.arb');
+    File(badPath).writeAsStringSync('{ not json');
+    final before = File(enPath).readAsStringSync();
+
+    await expectLater(SweepEngine(projectRoot: root).clean,
+        throwsA(isA<ArbParseException>()));
+    // The valid file was not touched: all-or-nothing.
+    expect(File(enPath).readAsStringSync(), before);
   });
 }
