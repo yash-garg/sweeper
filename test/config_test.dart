@@ -44,8 +44,8 @@ output-dir: lib/generated
   test('throws SweeperConfigException when l10n.yaml is missing', () {
     expect(
       () => SweeperConfig.load(tmp.path),
-      throwsA(isA<SweeperConfigException>().having(
-          (e) => e.message, 'message', contains('l10n.yaml'))),
+      throwsA(isA<SweeperConfigException>()
+          .having((e) => e.message, 'message', contains('l10n.yaml'))),
     );
   });
 

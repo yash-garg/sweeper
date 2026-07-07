@@ -75,8 +75,7 @@ class SweepEngine {
 
     final arbDir = Directory(config.arbDir);
     if (!arbDir.existsSync()) {
-      throw SweeperConfigException(
-          'ARB directory not found: ${config.arbDir}');
+      throw SweeperConfigException('ARB directory not found: ${config.arbDir}');
     }
     final arbPaths = arbDir
         .listSync()

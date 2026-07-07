@@ -1,1 +1,7 @@
 include: package:lints/recommended.yaml
+
+analyzer:
+  exclude:
+    # Fixture packages are analyzed by their own contexts in tests;
+    # broken_app is deliberately unparseable.
+    - test/fixtures/**

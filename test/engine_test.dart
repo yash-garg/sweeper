@@ -11,8 +11,8 @@ final fixtureRoot =
 
 void main() {
   setUpAll(() {
-    final result = Process.runSync('dart', ['pub', 'get'],
-        workingDirectory: fixtureRoot);
+    final result =
+        Process.runSync('dart', ['pub', 'get'], workingDirectory: fixtureRoot);
     expect(result.exitCode, 0, reason: result.stderr.toString());
   });
 
@@ -105,14 +105,13 @@ void main() {
     final root = copyFixtureToTemp();
     await SweepEngine(projectRoot: root)
         .clean(keepPatterns: ['dynamicGreeting*']);
-    final en = File(p.join(root, 'lib', 'l10n', 'intl_en.arb'))
-        .readAsStringSync();
+    final en =
+        File(p.join(root, 'lib', 'l10n', 'intl_en.arb')).readAsStringSync();
     expect(en, contains('"dynamicGreetingA"'));
     expect(en, isNot(contains('"unusedKey"')));
   });
 
-  test('clean aborts before writing anything if any ARB is invalid',
-      () async {
+  test('clean aborts before writing anything if any ARB is invalid', () async {
     final root = copyFixtureToTemp();
     final enPath = p.join(root, 'lib', 'l10n', 'intl_en.arb');
     final badPath = p.join(root, 'lib', 'l10n', 'intl_fr.arb');

@@ -9,8 +9,8 @@ void main() {
       p.normalize(p.absolute(p.join('test', 'fixtures', 'demo_app')));
 
   setUpAll(() {
-    final result = Process.runSync('dart', ['pub', 'get'],
-        workingDirectory: fixtureRoot);
+    final result =
+        Process.runSync('dart', ['pub', 'get'], workingDirectory: fixtureRoot);
     expect(result.exitCode, 0, reason: result.stderr.toString());
   });
 
@@ -52,8 +52,8 @@ void main() {
   test('fails closed when a file has analysis errors', () async {
     final brokenRoot =
         p.normalize(p.absolute(p.join('test', 'fixtures', 'broken_app')));
-    final pub = Process.runSync('dart', ['pub', 'get'],
-        workingDirectory: brokenRoot);
+    final pub =
+        Process.runSync('dart', ['pub', 'get'], workingDirectory: brokenRoot);
     expect(pub.exitCode, 0, reason: pub.stderr.toString());
 
     final scanner = UsageScanner(
