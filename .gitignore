@@ -1,0 +1,5 @@
+.dart_tool/
+pubspec.lock
+test/fixtures/**/.dart_tool/
+test/fixtures/**/pubspec.lock
+.superpowers/
