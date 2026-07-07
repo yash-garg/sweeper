@@ -85,7 +85,7 @@ class UsageScanner {
               'sweeper fails closed: fix analysis errors and rerun.');
         }
         scannedFileCount++;
-        result.unit.accept(_UsageVisitor(outputClass, usedKeys));
+        result.unit.accept(_UsageVisitor(outputClass, excludedDir, usedKeys));
       }
     }
     return UsageScanResult(
@@ -94,9 +94,13 @@ class UsageScanner {
 }
 
 class _UsageVisitor extends RecursiveAstVisitor<void> {
-  _UsageVisitor(this.outputClass, this.usedKeys);
+  _UsageVisitor(this.outputClass, this.generatedDir, this.usedKeys);
 
   final String outputClass;
+
+  /// Directory the generated localizations code lives in (`output-dir`).
+  final String generatedDir;
+
   final Set<String> usedKeys;
 
   @override
@@ -117,6 +121,21 @@ class _UsageVisitor extends RecursiveAstVisitor<void> {
   }
 
   bool _isLocalizationsClass(InterfaceElement cls) =>
-      cls.name == outputClass ||
-      cls.allSupertypes.any((type) => type.element.name == outputClass);
+      _isGeneratedRoot(cls) ||
+      cls.allSupertypes.any((type) => _isGeneratedRoot(type.element));
+
+  /// True only for the real gen-l10n class: right name AND declared where
+  /// gen-l10n generates code (`output-dir`, or the legacy synthetic
+  /// `package:flutter_gen` package). An identically-named class declared
+  /// anywhere else never matches.
+  bool _isGeneratedRoot(InterfaceElement cls) {
+    if (cls.name != outputClass) return false;
+    final library = cls.library;
+    final uri = library.uri;
+    if (uri.scheme == 'package' && uri.path.startsWith('flutter_gen/')) {
+      return true;
+    }
+    final path = library.firstFragment.source.fullName;
+    return p.isWithin(generatedDir, path);
+  }
 }

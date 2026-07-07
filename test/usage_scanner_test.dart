@@ -28,8 +28,8 @@ void main() {
       'usedViaField',
       'usedOnSubclass',
     });
-    // Only main.dart is scanned; lib/l10n is excluded.
-    expect(result.scannedFileCount, 1);
+    // main.dart, impostor.dart, impostor_usage.dart; lib/l10n is excluded.
+    expect(result.scannedFileCount, 3);
   });
 
   test('throws when pub get has not been run', () async {
