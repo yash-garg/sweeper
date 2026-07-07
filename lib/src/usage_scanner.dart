@@ -9,6 +9,7 @@ import 'package:analyzer/diagnostic/diagnostic.dart';
 import 'package:path/path.dart' as p;
 
 import 'exceptions.dart';
+import 'workspace.dart';
 
 class UsageScanException extends SweeperException {
   UsageScanException(super.message);
@@ -48,11 +49,9 @@ class UsageScanner {
   static const _scanRoots = ['lib', 'bin', 'test', 'integration_test'];
 
   Future<UsageScanResult> scan() async {
-    final packageConfig =
-        File(p.join(projectRoot, '.dart_tool', 'package_config.json'));
-    if (!packageConfig.existsSync()) {
+    if (findPackageConfig(projectRoot) == null) {
       throw UsageScanException(
-          'No .dart_tool/package_config.json in $projectRoot. '
+          'No .dart_tool/package_config.json found for $projectRoot. '
           'Run `dart pub get` (or `flutter pub get`) first.');
     }
 

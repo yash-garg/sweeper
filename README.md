@@ -91,10 +91,14 @@ classes.
 | 1    | Unused keys found           |
 | 2    | Environment or config error |
 
-## Monorepos
+## Monorepos & workspaces
 
-If packages outside the l10n package consume the same translations, include
-them with `--scan` so their usage counts (each must have had `pub get` run):
+[Pub workspaces](https://dart.dev/tools/pub/workspaces) are handled
+automatically: when the project is a workspace member, sweeper scans every
+other member for key usage too — no flags needed.
+
+For monorepos without workspaces, include the consuming packages with
+`--scan` (each must have had `pub get` run):
 
 ```sh
 dart run sweeper check --scan ../packages/feature_a --scan ../packages/feature_b

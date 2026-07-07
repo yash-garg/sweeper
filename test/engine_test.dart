@@ -129,6 +129,21 @@ void main() {
     ]);
   });
 
+  test('pub workspace members are discovered and scanned automatically',
+      () async {
+    final wsRoot =
+        p.normalize(p.absolute(p.join('test', 'fixtures', 'workspace_repo')));
+    final pub =
+        Process.runSync('dart', ['pub', 'get'], workingDirectory: wsRoot);
+    expect(pub.exitCode, 0, reason: pub.stderr.toString());
+
+    // Runs against the member package; usage in the sibling member and the
+    // root-level package_config must both be found without any flags.
+    final result =
+        await SweepEngine(projectRoot: p.join(wsRoot, 'app')).analyze();
+    expect(result.unusedKeys, ['neverUsed']);
+  });
+
   test('sort orders all ARB files and reports which changed', () async {
     final root = copyFixtureToTemp();
     final dePath = p.join(root, 'lib', 'l10n', 'intl_de.arb');

@@ -1,0 +1,7 @@
+name: ws_addon
+publish_to: none
+environment:
+  sdk: ^3.6.0
+resolution: workspace
+dependencies:
+  ws_app: any

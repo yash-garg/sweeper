@@ -5,6 +5,7 @@ import 'package:glob/glob.dart';
 import 'arb.dart';
 import 'config.dart';
 import 'usage_scanner.dart';
+import 'workspace.dart';
 
 /// The outcome of analyzing a project for unused translation keys.
 class SweepResult {
@@ -79,7 +80,12 @@ class SweepEngine {
       projectRoot: projectRoot,
       outputClass: config.outputClass,
       excludedDir: config.outputDir,
-      extraRoots: scanRoots,
+      extraRoots: {
+        ...scanRoots,
+        // Pub workspace members share the translations' resolution; their
+        // usage counts automatically.
+        ...discoverWorkspaceMembers(projectRoot),
+      }.toList(),
     ).scan();
 
     final keepGlobs = keepPatterns.map(Glob.new).toList();
