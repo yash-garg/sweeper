@@ -48,4 +48,23 @@ void main() {
           .having((e) => e.message, 'message', contains('pub get'))),
     );
   });
+
+  test('fails closed when a file has analysis errors', () async {
+    final brokenRoot =
+        p.normalize(p.absolute(p.join('test', 'fixtures', 'broken_app')));
+    final pub = Process.runSync('dart', ['pub', 'get'],
+        workingDirectory: brokenRoot);
+    expect(pub.exitCode, 0, reason: pub.stderr.toString());
+
+    final scanner = UsageScanner(
+      projectRoot: brokenRoot,
+      outputClass: 'L10n',
+      excludedDir: p.join(brokenRoot, 'lib', 'l10n'),
+    );
+    expect(
+      scanner.scan,
+      throwsA(isA<UsageScanException>()
+          .having((e) => e.message, 'message', contains('main.dart'))),
+    );
+  });
 }

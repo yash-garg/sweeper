@@ -1,0 +1,4 @@
+name: broken_app
+publish_to: none
+environment:
+  sdk: ^3.5.0
