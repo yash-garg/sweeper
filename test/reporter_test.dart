@@ -44,6 +44,41 @@ void main() {
     );
     final out = buffer.toString();
     expect(out, contains('dry run'));
-    expect(out, contains('lib/l10n/intl_en.arb: 1'));
+    expect(out, contains('lib/l10n/intl_en.arb'));
+  });
+
+  test('output contains no ANSI codes by default', () {
+    final buffer = StringBuffer();
+    Reporter(buffer).checkHuman(sweep(['a']));
+    expect(buffer.toString(), isNot(contains('\x1B[')));
+  });
+
+  test('ansi mode colors the output', () {
+    final buffer = StringBuffer();
+    Reporter(buffer, ansi: true).checkHuman(sweep(['a']));
+    expect(buffer.toString(), contains('\x1B['));
+  });
+
+  test('quiet checkHuman prints summary only, no key list', () {
+    final buffer = StringBuffer();
+    Reporter(buffer, quiet: true).checkHuman(sweep(['a', 'b']));
+    final out = buffer.toString();
+    expect(out, contains('2 unused'));
+    expect(out, isNot(contains('  a\n')));
+  });
+
+  test('quiet clean prints totals only, no keys or per-file list', () {
+    final buffer = StringBuffer();
+    Reporter(buffer, quiet: true).clean(
+      CleanResult(
+        analysis: sweep(['a']),
+        removedPerFile: {'lib/l10n/intl_en.arb': 1},
+      ),
+      dryRun: false,
+    );
+    final out = buffer.toString();
+    expect(out, contains('Removed 1 unused key'));
+    expect(out, isNot(contains('  a\n')));
+    expect(out, isNot(contains('intl_en.arb')));
   });
 }

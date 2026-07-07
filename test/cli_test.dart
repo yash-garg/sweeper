@@ -66,6 +66,18 @@ void main() {
     expect(File(enPath).readAsStringSync(), before);
   });
 
+  test('check --quiet omits the key list but keeps summary and exit 1', () {
+    final result = runCli(['check', '--quiet'], cwd: demoRoot);
+    expect(result.exitCode, 1);
+    expect(result.stdout, contains('5 unused'));
+    expect(result.stdout, isNot(contains('unusedPlain')));
+  });
+
+  test('piped output has no ANSI escapes', () {
+    final result = runCli(['check'], cwd: demoRoot);
+    expect(result.stdout, isNot(contains('\x1B[')));
+  });
+
   test('unknown command exits nonzero with usage', () {
     final result = runCli(['bogus'], cwd: demoRoot);
     expect(result.exitCode, isNot(0));

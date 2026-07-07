@@ -33,6 +33,12 @@ List<String> _keepPatterns(ArgResults results) =>
         .where((value) => value.isNotEmpty)
         .toList();
 
+Reporter _reporter(ArgResults results) => Reporter(
+      stdout,
+      ansi: stdout.supportsAnsiEscapes,
+      quiet: results['quiet'] as bool,
+    );
+
 class _CheckCommand extends Command<int> {
   _CheckCommand() {
     argParser
@@ -41,7 +47,11 @@ class _CheckCommand extends Command<int> {
           help: 'Keys to always treat as used (comma-separated; '
               'globs like error_* allowed).')
       ..addFlag('json',
-          help: 'Emit machine-readable JSON output.', negatable: false);
+          help: 'Emit machine-readable JSON output.', negatable: false)
+      ..addFlag('quiet',
+          abbr: 'q',
+          help: 'Print summary only, without listing keys.',
+          negatable: false);
   }
 
   @override
@@ -56,11 +66,10 @@ class _CheckCommand extends Command<int> {
     final results = argResults!;
     final result = await SweepEngine(projectRoot: Directory.current.path)
         .analyze(keepPatterns: _keepPatterns(results));
-    final reporter = Reporter(stdout);
     if (results['json'] as bool) {
-      reporter.checkJson(result);
+      Reporter(stdout).checkJson(result);
     } else {
-      reporter.checkHuman(result);
+      _reporter(results).checkHuman(result);
     }
     return result.hasUnused ? 1 : 0;
   }
@@ -76,6 +85,10 @@ class _CleanCommand extends Command<int> {
       ..addFlag('dry-run',
           abbr: 'n',
           help: 'Show what would be removed without writing files.',
+          negatable: false)
+      ..addFlag('quiet',
+          abbr: 'q',
+          help: 'Print summary only, without listing keys.',
           negatable: false);
   }
 
@@ -92,7 +105,7 @@ class _CleanCommand extends Command<int> {
     final dryRun = results['dry-run'] as bool;
     final result = await SweepEngine(projectRoot: Directory.current.path)
         .clean(keepPatterns: _keepPatterns(results), dryRun: dryRun);
-    Reporter(stdout).clean(result, dryRun: dryRun);
+    _reporter(results).clean(result, dryRun: dryRun);
     return result.analysis.hasUnused ? 1 : 0;
   }
 }
