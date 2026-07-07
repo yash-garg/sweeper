@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Newest resolvable analyzer, and the lowest we claim to support.
+        analyzer: [default, 10.0.0]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      - name: Pin analyzer lower bound
+        if: matrix.analyzer != 'default'
+        run: |
+          printf 'dependency_overrides:\n  analyzer: %s\n  test: 1.29.0\n' "${{ matrix.analyzer }}" > pubspec_overrides.yaml
+
+      - run: dart pub get
+
+      - name: Analyze
+        if: matrix.analyzer == 'default'
+        run: dart analyze --fatal-infos
+
+      - name: Check formatting
+        if: matrix.analyzer == 'default'
+        run: dart format --set-exit-if-changed lib bin test/*.dart
+
+      - name: Run tests
+        run: dart test
