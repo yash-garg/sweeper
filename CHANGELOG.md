@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.1
+
+- README: full commands & flags reference (including `--quiet`).
+
 ## 0.2.0
 
 - Hardened detection: the localizations class must be declared in the

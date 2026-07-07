@@ -27,8 +27,34 @@ dart run sweeper clean --dry-run   # preview without writing
 dart run sweeper check --keep 'dynamicGreeting*,languageName'
 ```
 
-Zero configuration: sweeper reads `arb-dir`, `template-arb-file`, and
-`output-class` from your `l10n.yaml`.
+Zero configuration: sweeper reads `arb-dir`, `template-arb-file`,
+`output-class`, and `output-dir` from your `l10n.yaml`.
+
+## Commands & flags
+
+### `sweeper check`
+
+Lists unused translation keys. Exits `1` if any are found.
+
+| Flag | | Description |
+| --- | --- | --- |
+| `--keep` | `-k` | Keys to always treat as used. Comma-separated; globs allowed (e.g. `error_*`). Repeatable. |
+| `--json` | | Machine-readable JSON output: `{"unused": [...], "scannedFiles": N, "totalKeys": N}`. |
+| `--quiet` | `-q` | Print the summary only, without listing keys. |
+
+### `sweeper clean`
+
+Deletes unused keys — and their `@key` metadata — from **every** ARB file in
+`arb-dir`, preserving key order and formatting. All files are parsed before
+any is written (all-or-nothing), and writes are atomic.
+
+| Flag | | Description |
+| --- | --- | --- |
+| `--keep` | `-k` | Keys to always treat as used. Comma-separated; globs allowed. Repeatable. |
+| `--dry-run` | `-n` | Show what would be removed without writing files. |
+| `--quiet` | `-q` | Print the summary only, without listing keys or per-file counts. |
+
+Output is colored when attached to a terminal and plain when piped or in CI.
 
 ## How it works
 
