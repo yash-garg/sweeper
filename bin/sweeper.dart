@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:args/args.dart';
+import 'package:path/path.dart' as p;
 import 'package:args/command_runner.dart';
 import 'package:sweeper/src/engine.dart';
 import 'package:sweeper/src/exceptions.dart';
@@ -26,6 +27,10 @@ Future<void> main(List<String> arguments) async {
     exitCode = 2;
   }
 }
+
+List<String> _scanRoots(ArgResults results) => (results['scan'] as List<String>)
+    .map((dir) => p.normalize(p.absolute(dir)))
+    .toList();
 
 List<String> _keepPatterns(ArgResults results) =>
     (results['keep'] as List<String>)
@@ -73,6 +78,10 @@ class _CheckCommand extends Command<int> {
               'globs like error_* allowed).')
       ..addFlag('json',
           help: 'Emit machine-readable JSON output.', negatable: false)
+      ..addMultiOption('scan',
+          abbr: 's',
+          help: 'Additional package roots to scan for key usage '
+              '(e.g. monorepo siblings). Repeatable.')
       ..addFlag('quiet',
           abbr: 'q',
           help: 'Print summary only, without listing keys.',
@@ -90,7 +99,9 @@ class _CheckCommand extends Command<int> {
   Future<int> run() async {
     final results = argResults!;
     final result = await SweepEngine(projectRoot: Directory.current.path)
-        .analyze(keepPatterns: _keepPatterns(results));
+        .analyze(
+            keepPatterns: _keepPatterns(results),
+            scanRoots: _scanRoots(results));
     if (results['json'] as bool) {
       Reporter(stdout).checkJson(result);
     } else {
@@ -111,6 +122,10 @@ class _CleanCommand extends Command<int> {
           abbr: 'n',
           help: 'Show what would be removed without writing files.',
           negatable: false)
+      ..addMultiOption('scan',
+          abbr: 's',
+          help: 'Additional package roots to scan for key usage '
+              '(e.g. monorepo siblings). Repeatable.')
       ..addFlag('quiet',
           abbr: 'q',
           help: 'Print summary only, without listing keys.',
@@ -128,8 +143,10 @@ class _CleanCommand extends Command<int> {
   Future<int> run() async {
     final results = argResults!;
     final dryRun = results['dry-run'] as bool;
-    final result = await SweepEngine(projectRoot: Directory.current.path)
-        .clean(keepPatterns: _keepPatterns(results), dryRun: dryRun);
+    final result = await SweepEngine(projectRoot: Directory.current.path).clean(
+        keepPatterns: _keepPatterns(results),
+        scanRoots: _scanRoots(results),
+        dryRun: dryRun);
     _reporter(results).clean(result, dryRun: dryRun);
     return result.analysis.hasUnused ? 1 : 0;
   }

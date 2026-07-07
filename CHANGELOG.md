@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.0
+
+- New `--scan`/`-s` flag on `check` and `clean`: include additional package
+  roots (monorepo siblings) when scanning for key usage.
+
 ## 0.3.0
 
 - New `sort` command: alphabetizes keys in all ARB files, keeping `@@`

@@ -43,6 +43,7 @@ Lists unused translation keys. Exits `1` if any are found.
 | --- | --- | --- |
 | `--keep` | `-k` | Keys to always treat as used. Comma-separated; globs allowed (e.g. `error_*`). Repeatable. |
 | `--json` | | Machine-readable JSON output: `{"unused": [...], "scannedFiles": N, "totalKeys": N}`. |
+| `--scan` | `-s` | Additional package roots to scan for key usage (monorepo siblings). Repeatable. |
 | `--quiet` | `-q` | Print the summary only, without listing keys. |
 
 ### `sweeper clean`
@@ -55,6 +56,7 @@ any is written (all-or-nothing), and writes are atomic.
 | --- | --- | --- |
 | `--keep` | `-k` | Keys to always treat as used. Comma-separated; globs allowed. Repeatable. |
 | `--dry-run` | `-n` | Show what would be removed without writing files. |
+| `--scan` | `-s` | Additional package roots to scan for key usage (monorepo siblings). Repeatable. |
 | `--quiet` | `-q` | Print the summary only, without listing keys or per-file counts. |
 
 ### `sweeper sort`
@@ -88,6 +90,15 @@ classes.
 | 0    | No unused keys              |
 | 1    | Unused keys found           |
 | 2    | Environment or config error |
+
+## Monorepos
+
+If packages outside the l10n package consume the same translations, include
+them with `--scan` so their usage counts (each must have had `pub get` run):
+
+```sh
+dart run sweeper check --scan ../packages/feature_a --scan ../packages/feature_b
+```
 
 ## Scope
 

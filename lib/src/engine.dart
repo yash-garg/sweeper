@@ -64,8 +64,13 @@ class SweepEngine {
 
   /// Finds unused translation keys without modifying anything.
   ///
-  /// Keys matching any glob in [keepPatterns] are treated as used.
-  Future<SweepResult> analyze({List<String> keepPatterns = const []}) async {
+  /// Keys matching any glob in [keepPatterns] are treated as used. Sources
+  /// in [scanRoots] (additional package roots, e.g. monorepo siblings) are
+  /// scanned for usage alongside the project's own.
+  Future<SweepResult> analyze({
+    List<String> keepPatterns = const [],
+    List<String> scanRoots = const [],
+  }) async {
     final config = SweeperConfig.load(projectRoot);
     final template = _parseArb(config.templateArbPath);
     final templateKeys = template.translationKeys;
@@ -74,6 +79,7 @@ class SweepEngine {
       projectRoot: projectRoot,
       outputClass: config.outputClass,
       excludedDir: config.outputDir,
+      extraRoots: scanRoots,
     ).scan();
 
     final keepGlobs = keepPatterns.map(Glob.new).toList();
@@ -99,10 +105,12 @@ class SweepEngine {
   /// [CleanResult] describes what would have been removed.
   Future<CleanResult> clean({
     List<String> keepPatterns = const [],
+    List<String> scanRoots = const [],
     bool dryRun = false,
   }) async {
     final config = SweeperConfig.load(projectRoot);
-    final analysis = await analyze(keepPatterns: keepPatterns);
+    final analysis =
+        await analyze(keepPatterns: keepPatterns, scanRoots: scanRoots);
 
     final documents = _arbDocuments(config);
 

@@ -1,0 +1,7 @@
+name: demo_addon
+publish_to: none
+environment:
+  sdk: ^3.5.0
+dependencies:
+  demo_app:
+    path: ../demo_app

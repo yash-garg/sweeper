@@ -111,6 +111,24 @@ void main() {
     expect(en, isNot(contains('"unusedKey"')));
   });
 
+  test('scanRoots includes usage from sibling packages', () async {
+    final addonRoot =
+        p.normalize(p.absolute(p.join('test', 'fixtures', 'demo_addon')));
+    final pub =
+        Process.runSync('dart', ['pub', 'get'], workingDirectory: addonRoot);
+    expect(pub.exitCode, 0, reason: pub.stderr.toString());
+
+    final result = await SweepEngine(projectRoot: fixtureRoot)
+        .analyze(scanRoots: [addonRoot]);
+    // unusedPlain is used by demo_addon, so it is no longer unused.
+    expect(result.unusedKeys, [
+      'dynamicGreetingA',
+      'dynamicGreetingB',
+      'languageName',
+      'unusedKey',
+    ]);
+  });
+
   test('sort orders all ARB files and reports which changed', () async {
     final root = copyFixtureToTemp();
     final dePath = p.join(root, 'lib', 'l10n', 'intl_de.arb');
