@@ -19,12 +19,14 @@ arb-dir: lib/l10n
 template-arb-file: intl_en.arb
 output-class: L10n
 output-dir: lib/generated
+output-localization-file: l10n.dart
 ''');
     final config = SweeperConfig.load(tmp.path);
     expect(config.arbDir, p.join(tmp.path, 'lib/l10n'));
     expect(config.templateArbPath, p.join(tmp.path, 'lib/l10n/intl_en.arb'));
     expect(config.outputClass, 'L10n');
     expect(config.outputDir, p.join(tmp.path, 'lib/generated'));
+    expect(config.outputFileStem, 'l10n');
   });
 
   test('applies gen-l10n defaults for missing keys', () {
@@ -33,6 +35,7 @@ output-dir: lib/generated
     expect(config.templateArbPath, p.join(tmp.path, 'lib/l10n/app_en.arb'));
     expect(config.outputClass, 'AppLocalizations');
     expect(config.outputDir, config.arbDir);
+    expect(config.outputFileStem, 'app_localizations');
   });
 
   test('empty l10n.yaml falls back to all defaults', () {

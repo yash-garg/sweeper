@@ -80,6 +80,7 @@ class SweepEngine {
       projectRoot: projectRoot,
       outputClass: config.outputClass,
       excludedDir: config.outputDir,
+      outputFileStem: config.outputFileStem,
       extraRoots: {
         ...scanRoots,
         // Pub workspace members share the translations' resolution; their

@@ -32,18 +32,27 @@ class UsageScanner {
     required this.projectRoot,
     required this.outputClass,
     required this.excludedDir,
+    required this.outputFileStem,
     this.extraRoots = const [],
   });
 
   final String projectRoot;
   final String outputClass;
 
+  /// Basename (without extension) of the generated localizations file
+  /// (gen-l10n `output-localization-file`). Only `<stem>.dart` and
+  /// `<stem>_<locale>.dart` inside [excludedDir] are skipped, so
+  /// hand-written Dart files living in the same directory still count
+  /// as usage.
+  final String outputFileStem;
+
   /// Additional package roots (e.g. monorepo siblings) whose sources are
   /// also scanned for usage.
   final List<String> extraRoots;
 
-  /// Generated-code directory (gen-l10n `output-dir`); skipped so the
-  /// generated class's own code never counts as usage.
+  /// Generated-code directory (gen-l10n `output-dir`); generated files in
+  /// it are skipped so the generated class's own code never counts as
+  /// usage.
   final String excludedDir;
 
   static const _scanRoots = ['lib', 'bin', 'test', 'integration_test'];
@@ -78,9 +87,7 @@ class UsageScanner {
     for (final context in collection.contexts) {
       for (final path in context.contextRoot.analyzedFiles()) {
         if (!path.endsWith('.dart')) continue;
-        if (p.isWithin(excludedDir, path) || p.equals(excludedDir, path)) {
-          continue;
-        }
+        if (_isGeneratedFile(path)) continue;
         final result = await context.currentSession.getResolvedUnit(path);
         if (result is! ResolvedUnitResult) {
           throw UsageScanException('Could not resolve $path '
@@ -101,6 +108,16 @@ class UsageScanner {
     }
     return UsageScanResult(
         usedKeys: usedKeys, scannedFileCount: scannedFileCount);
+  }
+
+  /// True for gen-l10n output files: `<stem>.dart` or `<stem>_*.dart`
+  /// inside the output directory. Anything else in that directory is
+  /// hand-written and must be scanned like any other source.
+  bool _isGeneratedFile(String path) {
+    if (!p.isWithin(excludedDir, path)) return false;
+    final base = p.basename(path);
+    return base == '$outputFileStem.dart' ||
+        (base.startsWith('${outputFileStem}_') && base.endsWith('.dart'));
   }
 }
 

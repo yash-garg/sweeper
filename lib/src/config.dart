@@ -16,6 +16,7 @@ class SweeperConfig {
     required this.templateArbPath,
     required this.outputClass,
     required this.outputDir,
+    required this.outputFileStem,
   });
 
   /// Absolute path to the directory containing `.arb` files.
@@ -29,6 +30,12 @@ class SweeperConfig {
 
   /// Absolute path to the generated-code directory (excluded from scanning).
   final String outputDir;
+
+  /// Basename of the generated localizations file without its extension
+  /// (e.g. `app_localizations`). gen-l10n writes `<stem>.dart` plus
+  /// `<stem>_<locale>.dart` per locale into [outputDir]; only those files
+  /// are excluded from usage scanning.
+  final String outputFileStem;
 
   static SweeperConfig load(String projectRoot) {
     final file = File(p.join(projectRoot, 'l10n.yaml'));
@@ -68,6 +75,8 @@ class SweeperConfig {
       outputDir: outputDirValue == null
           ? arbDir
           : p.normalize(p.join(projectRoot, outputDirValue)),
+      outputFileStem: p.basenameWithoutExtension(
+          readString('output-localization-file') ?? 'app_localizations.dart'),
     );
   }
 }
