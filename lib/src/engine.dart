@@ -100,7 +100,10 @@ class SweepEngine {
 
     Glob parseGlob(String pattern) {
       try {
-        return Glob(pattern);
+        // Keys are not paths: force posix syntax and case-sensitivity so
+        // patterns behave identically on every platform (the default
+        // platform context is case-insensitive on Windows).
+        return Glob(pattern, context: p.posix, caseSensitive: true);
       } on FormatException catch (e) {
         throw KeepPatternException(
             'Invalid keep pattern "$pattern": ${e.message}');

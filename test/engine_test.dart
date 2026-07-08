@@ -35,6 +35,14 @@ void main() {
     expect(result.unusedKeys, ['unusedKey', 'unusedPlain']);
   });
 
+  test('keep patterns are case-sensitive on every platform', () async {
+    final result = await SweepEngine(projectRoot: fixtureRoot)
+        .analyze(keepPatterns: ['UNUSEDKEY', 'DynamicGreeting*']);
+    // Wrong-cased patterns keep nothing.
+    expect(result.unusedKeys, contains('unusedKey'));
+    expect(result.unusedKeys, contains('dynamicGreetingA'));
+  });
+
   test('accepts a relative projectRoot', () async {
     final relative = p.join('test', 'fixtures', 'demo_app');
     final result = await SweepEngine(projectRoot: relative).analyze();
