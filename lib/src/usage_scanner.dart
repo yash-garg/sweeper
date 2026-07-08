@@ -55,7 +55,7 @@ class UsageScanner {
   /// usage.
   final String excludedDir;
 
-  static const _scanRoots = ['lib', 'bin', 'test', 'integration_test'];
+  static const _scanRoots = ['lib', 'bin', 'test', 'integration_test', 'tool'];
 
   Future<UsageScanResult> scan() async {
     if (findPackageConfig(projectRoot) == null) {

@@ -85,6 +85,38 @@ void main() => print(L10n().fromMain);
     expect(result.scannedFileCount, 2);
   });
 
+  test('scans tool/ scripts', () async {
+    final tmp = Directory.systemTemp.createTempSync('sweeper_toolscan_');
+    addTearDown(() => tmp.deleteSync(recursive: true));
+    File(p.join(tmp.path, 'pubspec.yaml')).writeAsStringSync(
+        'name: toolscan\nenvironment:\n  sdk: ^3.5.0\n');
+    Directory(p.join(tmp.path, 'lib', 'l10n')).createSync(recursive: true);
+    Directory(p.join(tmp.path, 'tool')).createSync();
+    File(p.join(tmp.path, 'lib', 'l10n', 'l10n.dart')).writeAsStringSync('''
+class L10n {
+  String get fromTool => 'used only by a tool script';
+  String get neverUsed => 'unused';
+}
+''');
+    File(p.join(tmp.path, 'tool', 'report.dart')).writeAsStringSync('''
+import '../lib/l10n/l10n.dart';
+
+void main() => print(L10n().fromTool);
+''');
+    final pub =
+        Process.runSync('dart', ['pub', 'get'], workingDirectory: tmp.path);
+    expect(pub.exitCode, 0, reason: pub.stderr.toString());
+
+    final result = await UsageScanner(
+      projectRoot: tmp.path,
+      outputClass: 'L10n',
+      excludedDir: p.join(tmp.path, 'lib', 'l10n'),
+      outputFileStem: 'l10n',
+    ).scan();
+    expect(result.usedKeys, {'fromTool'});
+    expect(result.scannedFileCount, 1);
+  });
+
   test('throws when pub get has not been run', () async {
     final tmp = Directory.systemTemp.createTempSync('sweeper_nopub_');
     addTearDown(() => tmp.deleteSync(recursive: true));
