@@ -44,6 +44,12 @@ void main() {
     expect(doc.removeKey('nope'), isFalse);
   });
 
+  test('removeKey returns true for a key with a null value', () {
+    final doc = ArbDocument.parse('a.arb', '{\n  "broken": null\n}\n');
+    expect(doc.removeKey('broken'), isTrue);
+    expect(doc.translationKeys, isEmpty);
+  });
+
   test('preserves 4-space indentation', () {
     const wide = '{\n    "a": "x",\n    "b": "y"\n}\n';
     final doc = ArbDocument.parse('a.arb', wide);

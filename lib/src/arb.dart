@@ -41,7 +41,10 @@ class ArbDocument {
 
   /// Removes [key] and its `@key` metadata. Returns true if [key] existed.
   bool removeKey(String key) {
-    final existed = _entries.remove(key) != null;
+    // containsKey, not remove() != null: a key with an explicit null
+    // value exists and its removal must be reported.
+    final existed = _entries.containsKey(key);
+    _entries.remove(key);
     _entries.remove('@$key');
     return existed;
   }
