@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.4.1
+
+- `clean` no longer rewrites ARB files it removed nothing from: untouched
+  files stay byte-identical instead of being reformatted by re-serialization.
+- Hand-written Dart files inside the gen-l10n output directory (e.g.
+  `lib/l10n/l10n.dart` helpers) are now scanned for key usage; only the
+  generated `<output-localization-file>` and its `_<locale>` variants are
+  excluded. Previously, keys used only in such files were wrongly deleted.
+- `tool/` scripts are now scanned for key usage.
+- Invalid `--keep` globs report a clean error (exit 2) instead of crashing
+  with a stack trace.
+- `--keep` globs are case-sensitive on every platform; previously they were
+  case-insensitive on Windows only.
+- `SweepEngine` accepts a relative `projectRoot` instead of throwing a raw
+  `ArgumentError`.
+- Removing an ARB key with an explicit `null` value is now counted in the
+  per-file removal totals.
+- Atomic writes use a pid-suffixed temp file (safe under concurrent runs)
+  and clean up the temp file on failure.
+
 ## 0.4.0
 
 - New `--scan`/`-s` flag on `check` and `clean`: include additional package
