@@ -4,8 +4,14 @@ import 'package:glob/glob.dart';
 
 import 'arb.dart';
 import 'config.dart';
+import 'exceptions.dart';
 import 'usage_scanner.dart';
 import 'workspace.dart';
+
+/// Thrown when a `--keep` pattern is not a valid glob.
+class KeepPatternException extends SweeperException {
+  KeepPatternException(super.message);
+}
 
 /// The outcome of analyzing a project for unused translation keys.
 class SweepResult {
@@ -89,7 +95,16 @@ class SweepEngine {
       }.toList(),
     ).scan();
 
-    final keepGlobs = keepPatterns.map(Glob.new).toList();
+    Glob parseGlob(String pattern) {
+      try {
+        return Glob(pattern);
+      } on FormatException catch (e) {
+        throw KeepPatternException(
+            'Invalid keep pattern "$pattern": ${e.message}');
+      }
+    }
+
+    final keepGlobs = keepPatterns.map(parseGlob).toList();
     bool isKept(String key) => keepGlobs.any((g) => g.matches(key));
 
     final unused = templateKeys

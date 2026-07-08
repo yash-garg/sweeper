@@ -35,6 +35,15 @@ void main() {
     expect(result.unusedKeys, ['unusedKey', 'unusedPlain']);
   });
 
+  test('invalid keep pattern throws KeepPatternException', () async {
+    expect(
+      () => SweepEngine(projectRoot: fixtureRoot)
+          .analyze(keepPatterns: ['[unclosed']),
+      throwsA(isA<KeepPatternException>()
+          .having((e) => e.message, 'message', contains('[unclosed'))),
+    );
+  });
+
   test('missing template ARB throws SweeperConfigException', () async {
     final tmp = Directory.systemTemp.createTempSync('sweeper_engine_');
     addTearDown(() => tmp.deleteSync(recursive: true));
