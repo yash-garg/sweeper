@@ -35,6 +35,12 @@ void main() {
     expect(result.unusedKeys, ['unusedKey', 'unusedPlain']);
   });
 
+  test('accepts a relative projectRoot', () async {
+    final relative = p.join('test', 'fixtures', 'demo_app');
+    final result = await SweepEngine(projectRoot: relative).analyze();
+    expect(result.totalKeys, 10);
+  });
+
   test('invalid keep pattern throws KeepPatternException', () async {
     expect(
       () => SweepEngine(projectRoot: fixtureRoot)

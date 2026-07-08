@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:glob/glob.dart';
+import 'package:path/path.dart' as p;
 
 import 'arb.dart';
 import 'config.dart';
@@ -63,10 +64,12 @@ class SortResult {
 /// unused = templateKeys − usedKeys − keepGlobs.
 class SweepEngine {
   /// Creates an engine for the package at [projectRoot] (the directory
-  /// containing `l10n.yaml` and `pubspec.yaml`).
-  SweepEngine({required this.projectRoot});
+  /// containing `l10n.yaml` and `pubspec.yaml`). A relative path is
+  /// resolved against the current working directory.
+  SweepEngine({required String projectRoot})
+      : projectRoot = p.normalize(p.absolute(projectRoot));
 
-  /// Absolute path to the project being swept.
+  /// Absolute, normalized path to the project being swept.
   final String projectRoot;
 
   /// Finds unused translation keys without modifying anything.
