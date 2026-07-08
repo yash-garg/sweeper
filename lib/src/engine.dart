@@ -127,7 +127,9 @@ class SweepEngine {
         if (doc.removeKey(key)) removed++;
       }
       removedPerFile[doc.path] = removed;
-      if (!dryRun) {
+      // Only rewrite files something was removed from: serialization
+      // normalizes formatting, so untouched files must stay byte-identical.
+      if (!dryRun && removed > 0) {
         _writeAtomic(doc.path, doc.serialize());
       }
     }

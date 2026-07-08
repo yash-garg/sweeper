@@ -101,6 +101,25 @@ void main() {
     expect(File(enPath).readAsStringSync(), before);
   });
 
+  test('clean leaves files with no removals byte-identical', () async {
+    final root = copyFixtureToTemp();
+    final enPath = p.join(root, 'lib', 'l10n', 'intl_en.arb');
+    final dePath = p.join(root, 'lib', 'l10n', 'intl_de.arb');
+    // Non-standard formatting that re-serialization would normalize.
+    final before = File(dePath)
+        .readAsStringSync()
+        .replaceFirst('"germanOnly"', '"germanOnly"  ');
+    File(dePath).writeAsStringSync(before);
+    final enBefore = File(enPath).readAsStringSync();
+
+    // Keep everything: nothing is unused, so nothing may be rewritten.
+    final result =
+        await SweepEngine(projectRoot: root).clean(keepPatterns: ['*']);
+    expect(result.analysis.hasUnused, isFalse);
+    expect(File(dePath).readAsStringSync(), before);
+    expect(File(enPath).readAsStringSync(), enBefore);
+  });
+
   test('clean honors keep patterns', () async {
     final root = copyFixtureToTemp();
     await SweepEngine(projectRoot: root)
