@@ -5,3 +5,28 @@ analyzer:
     # Fixture packages are analyzed by their own contexts in tests;
     # broken_app is deliberately unparseable.
     - test/fixtures/**
+
+linter:
+  rules:
+    - avoid_print
+    - prefer_final_locals
+    - prefer_final_in_for_each
+    - sort_pub_dependencies
+    - require_trailing_commas
+    - omit_local_variable_types
+    - cancel_subscriptions
+    - always_declare_return_types
+    - avoid_void_async
+    - no_adjacent_strings_in_list
+    - test_types_in_equals
+    - throw_in_finally
+    - unnecessary_statements
+    - avoid_bool_literals_in_conditional_expressions
+    - prefer_single_quotes
+    - prefer_const_declarations
+    - unnecessary_lambdas
+    - combinators_ordering
+    - noop_primitive_operations
+    - unnecessary_null_checks
+    - use_is_even_rather_than_modulo
+    - directives_ordering
