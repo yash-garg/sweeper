@@ -192,9 +192,15 @@ class SweepEngine {
   }
 
   void _writeAtomic(String path, String content) {
-    final tmp = File('$path.sweeper.tmp');
-    tmp.writeAsStringSync(content, flush: true);
-    tmp.renameSync(path);
+    // Pid-suffixed so concurrent sweeper runs never share a tmp file.
+    final tmp = File('$path.$pid.sweeper.tmp');
+    try {
+      tmp.writeAsStringSync(content, flush: true);
+      tmp.renameSync(path);
+    } catch (_) {
+      if (tmp.existsSync()) tmp.deleteSync();
+      rethrow;
+    }
   }
 
   ArbDocument _parseArb(String path) {
