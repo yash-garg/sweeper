@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.2
+
+- Internal: stricter lint rules and style cleanups; no functional changes.
+
 ## 0.4.1
 
 - `clean` no longer rewrites ARB files it removed nothing from: untouched

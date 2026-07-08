@@ -1,6 +1,6 @@
 name: sweeper
 description: Finds and removes unused gen-l10n translation keys from ARB files using resolved static analysis.
-version: 0.4.1
+version: 0.4.2
 repository: https://github.com/yash-garg/sweeper
 topics: [l10n, arb, flutter, translations, cli]
 environment:
