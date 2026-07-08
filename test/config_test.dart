@@ -48,13 +48,13 @@ output-localization-file: l10n.dart
     expect(
       () => SweeperConfig.load(tmp.path),
       throwsA(isA<SweeperConfigException>()
-          .having((e) => e.message, 'message', contains('l10n.yaml'))),
+          .having((e) => e.message, 'message', contains('l10n.yaml')),),
     );
   });
 
   test('throws SweeperConfigException on malformed yaml', () {
     writeL10nYaml('arb-dir: [unclosed\n');
     expect(() => SweeperConfig.load(tmp.path),
-        throwsA(isA<SweeperConfigException>()));
+        throwsA(isA<SweeperConfigException>()),);
   });
 }

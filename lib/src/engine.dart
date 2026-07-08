@@ -106,7 +106,7 @@ class SweepEngine {
         return Glob(pattern, context: p.posix, caseSensitive: true);
       } on FormatException catch (e) {
         throw KeepPatternException(
-            'Invalid keep pattern "$pattern": ${e.message}');
+            'Invalid keep pattern "$pattern": ${e.message}',);
       }
     }
 

@@ -76,7 +76,7 @@ class SweeperConfig {
           ? arbDir
           : p.normalize(p.join(projectRoot, outputDirValue)),
       outputFileStem: p.basenameWithoutExtension(
-          readString('output-localization-file') ?? 'app_localizations.dart'),
+          readString('output-localization-file') ?? 'app_localizations.dart',),
     );
   }
 }

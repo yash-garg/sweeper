@@ -55,7 +55,7 @@ List<String> _expandMembers(String workspaceRoot, YamlList entries) {
     final matches = Glob(entry).listSync(root: workspaceRoot);
     members.addAll(matches
         .whereType<Directory>()
-        .map((d) => p.normalize(p.absolute(d.path))));
+        .map((d) => p.normalize(p.absolute(d.path))),);
   }
   return [
     for (final m in members)

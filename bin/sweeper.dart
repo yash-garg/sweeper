@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:args/args.dart';
-import 'package:path/path.dart' as p;
 import 'package:args/command_runner.dart';
+import 'package:path/path.dart' as p;
 import 'package:sweeper/src/engine.dart';
 import 'package:sweeper/src/exceptions.dart';
 import 'package:sweeper/src/reporter.dart';
@@ -50,7 +50,7 @@ class _SortCommand extends Command<int> {
     argParser.addFlag('quiet',
         abbr: 'q',
         help: 'Print summary only, without listing changed files.',
-        negatable: false);
+        negatable: false,);
   }
 
   @override
@@ -75,17 +75,17 @@ class _CheckCommand extends Command<int> {
       ..addMultiOption('keep',
           abbr: 'k',
           help: 'Keys to always treat as used (comma-separated; '
-              'globs like error_* allowed).')
+              'globs like error_* allowed).',)
       ..addFlag('json',
-          help: 'Emit machine-readable JSON output.', negatable: false)
+          help: 'Emit machine-readable JSON output.', negatable: false,)
       ..addMultiOption('scan',
           abbr: 's',
           help: 'Additional package roots to scan for key usage '
-              '(e.g. monorepo siblings). Repeatable.')
+              '(e.g. monorepo siblings). Repeatable.',)
       ..addFlag('quiet',
           abbr: 'q',
           help: 'Print summary only, without listing keys.',
-          negatable: false);
+          negatable: false,);
   }
 
   @override
@@ -101,7 +101,7 @@ class _CheckCommand extends Command<int> {
     final result = await SweepEngine(projectRoot: Directory.current.path)
         .analyze(
             keepPatterns: _keepPatterns(results),
-            scanRoots: _scanRoots(results));
+            scanRoots: _scanRoots(results),);
     if (results['json'] as bool) {
       Reporter(stdout).checkJson(result);
     } else {
@@ -117,19 +117,19 @@ class _CleanCommand extends Command<int> {
       ..addMultiOption('keep',
           abbr: 'k',
           help: 'Keys to always treat as used (comma-separated; '
-              'globs like error_* allowed).')
+              'globs like error_* allowed).',)
       ..addFlag('dry-run',
           abbr: 'n',
           help: 'Show what would be removed without writing files.',
-          negatable: false)
+          negatable: false,)
       ..addMultiOption('scan',
           abbr: 's',
           help: 'Additional package roots to scan for key usage '
-              '(e.g. monorepo siblings). Repeatable.')
+              '(e.g. monorepo siblings). Repeatable.',)
       ..addFlag('quiet',
           abbr: 'q',
           help: 'Print summary only, without listing keys.',
-          negatable: false);
+          negatable: false,);
   }
 
   @override
@@ -146,7 +146,7 @@ class _CleanCommand extends Command<int> {
     final result = await SweepEngine(projectRoot: Directory.current.path).clean(
         keepPatterns: _keepPatterns(results),
         scanRoots: _scanRoots(results),
-        dryRun: dryRun);
+        dryRun: dryRun,);
     _reporter(results).clean(result, dryRun: dryRun);
     return result.analysis.hasUnused ? 1 : 0;
   }

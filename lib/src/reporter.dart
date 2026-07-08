@@ -22,7 +22,7 @@ class Reporter {
       return;
     }
     _out.writeln(_red('✗ ${result.unusedKeys.length} unused translation '
-        '${_keyWord(result.unusedKeys.length)}${quiet ? '' : ':'}'));
+        '${_keyWord(result.unusedKeys.length)}${quiet ? '' : ':'}'),);
     if (!quiet) {
       for (final key in result.unusedKeys) {
         _out.writeln('  ${_dim(key)}');
@@ -36,7 +36,7 @@ class Reporter {
       'unused': result.unusedKeys,
       'scannedFiles': result.scannedFileCount,
       'totalKeys': result.totalKeys,
-    }));
+    }),);
   }
 
   void clean(CleanResult result, {required bool dryRun}) {
@@ -81,7 +81,7 @@ class Reporter {
   void _writeStats(SweepResult result) {
     _out.writeln(_dim('${result.totalKeys} keys · '
         '${result.unusedKeys.length} unused · '
-        '${result.scannedFileCount} files scanned'));
+        '${result.scannedFileCount} files scanned'),);
   }
 
   static String _keyWord(int count) => count == 1 ? 'key' : 'keys';
