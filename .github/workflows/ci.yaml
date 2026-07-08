@@ -6,7 +6,25 @@ on:
   pull_request:
 
 jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: DeterminateSystems/nix-installer-action@main
+
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+
+      - run: nix develop -c dart pub get
+
+      - name: Analyze
+        run: nix develop -c dart analyze --fatal-infos
+
+      - name: Check formatting
+        run: nix develop -c dart format --set-exit-if-changed lib bin test/*.dart
+
   test:
+    needs: analyze
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -26,14 +44,6 @@ jobs:
           printf 'dependency_overrides:\n  analyzer: %s\n  test: 1.29.0\n' "${{ matrix.analyzer }}" > pubspec_overrides.yaml
 
       - run: nix develop -c dart pub get
-
-      - name: Analyze
-        if: matrix.analyzer == 'default'
-        run: nix develop -c dart analyze --fatal-infos
-
-      - name: Check formatting
-        if: matrix.analyzer == 'default'
-        run: nix develop -c dart format --set-exit-if-changed lib bin test/*.dart
 
       - name: Run tests
         run: nix develop -c dart test
