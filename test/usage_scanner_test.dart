@@ -33,12 +33,11 @@ void main() {
     expect(result.scannedFileCount, 3);
   });
 
-  test('scans hand-written Dart files inside the output directory',
-      () async {
+  test('scans hand-written Dart files inside the output directory', () async {
     final tmp = Directory.systemTemp.createTempSync('sweeper_arbdir_');
     addTearDown(() => tmp.deleteSync(recursive: true));
-    File(p.join(tmp.path, 'pubspec.yaml')).writeAsStringSync(
-        'name: arbdirscan\nenvironment:\n  sdk: ^3.5.0\n');
+    File(p.join(tmp.path, 'pubspec.yaml'))
+        .writeAsStringSync('name: arbdirscan\nenvironment:\n  sdk: ^3.5.0\n');
     Directory(p.join(tmp.path, 'lib', 'l10n')).createSync(recursive: true);
     // Simulated generated files: must NOT count as usage.
     File(p.join(tmp.path, 'lib', 'l10n', 'l10n.dart')).writeAsStringSync('''
@@ -88,8 +87,8 @@ void main() => print(L10n().fromMain);
   test('scans tool/ scripts', () async {
     final tmp = Directory.systemTemp.createTempSync('sweeper_toolscan_');
     addTearDown(() => tmp.deleteSync(recursive: true));
-    File(p.join(tmp.path, 'pubspec.yaml')).writeAsStringSync(
-        'name: toolscan\nenvironment:\n  sdk: ^3.5.0\n');
+    File(p.join(tmp.path, 'pubspec.yaml'))
+        .writeAsStringSync('name: toolscan\nenvironment:\n  sdk: ^3.5.0\n');
     Directory(p.join(tmp.path, 'lib', 'l10n')).createSync(recursive: true);
     Directory(p.join(tmp.path, 'tool')).createSync();
     File(p.join(tmp.path, 'lib', 'l10n', 'l10n.dart')).writeAsStringSync('''
