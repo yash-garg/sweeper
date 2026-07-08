@@ -107,7 +107,9 @@ class UsageScanner {
       }
     }
     return UsageScanResult(
-        usedKeys: usedKeys, scannedFileCount: scannedFileCount,);
+      usedKeys: usedKeys,
+      scannedFileCount: scannedFileCount,
+    );
   }
 
   /// True for gen-l10n output files: `<stem>.dart` or `<stem>_*.dart`

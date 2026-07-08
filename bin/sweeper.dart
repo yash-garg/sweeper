@@ -47,10 +47,12 @@ Reporter _reporter(ArgResults results) => Reporter(
 
 class _SortCommand extends Command<int> {
   _SortCommand() {
-    argParser.addFlag('quiet',
-        abbr: 'q',
-        help: 'Print summary only, without listing changed files.',
-        negatable: false,);
+    argParser.addFlag(
+      'quiet',
+      abbr: 'q',
+      help: 'Print summary only, without listing changed files.',
+      negatable: false,
+    );
   }
 
   @override
@@ -72,20 +74,29 @@ class _SortCommand extends Command<int> {
 class _CheckCommand extends Command<int> {
   _CheckCommand() {
     argParser
-      ..addMultiOption('keep',
-          abbr: 'k',
-          help: 'Keys to always treat as used (comma-separated; '
-              'globs like error_* allowed).',)
-      ..addFlag('json',
-          help: 'Emit machine-readable JSON output.', negatable: false,)
-      ..addMultiOption('scan',
-          abbr: 's',
-          help: 'Additional package roots to scan for key usage '
-              '(e.g. monorepo siblings). Repeatable.',)
-      ..addFlag('quiet',
-          abbr: 'q',
-          help: 'Print summary only, without listing keys.',
-          negatable: false,);
+      ..addMultiOption(
+        'keep',
+        abbr: 'k',
+        help: 'Keys to always treat as used (comma-separated; '
+            'globs like error_* allowed).',
+      )
+      ..addFlag(
+        'json',
+        help: 'Emit machine-readable JSON output.',
+        negatable: false,
+      )
+      ..addMultiOption(
+        'scan',
+        abbr: 's',
+        help: 'Additional package roots to scan for key usage '
+            '(e.g. monorepo siblings). Repeatable.',
+      )
+      ..addFlag(
+        'quiet',
+        abbr: 'q',
+        help: 'Print summary only, without listing keys.',
+        negatable: false,
+      );
   }
 
   @override
@@ -98,10 +109,11 @@ class _CheckCommand extends Command<int> {
   @override
   Future<int> run() async {
     final results = argResults!;
-    final result = await SweepEngine(projectRoot: Directory.current.path)
-        .analyze(
-            keepPatterns: _keepPatterns(results),
-            scanRoots: _scanRoots(results),);
+    final result =
+        await SweepEngine(projectRoot: Directory.current.path).analyze(
+      keepPatterns: _keepPatterns(results),
+      scanRoots: _scanRoots(results),
+    );
     if (results['json'] as bool) {
       Reporter(stdout).checkJson(result);
     } else {
@@ -114,22 +126,30 @@ class _CheckCommand extends Command<int> {
 class _CleanCommand extends Command<int> {
   _CleanCommand() {
     argParser
-      ..addMultiOption('keep',
-          abbr: 'k',
-          help: 'Keys to always treat as used (comma-separated; '
-              'globs like error_* allowed).',)
-      ..addFlag('dry-run',
-          abbr: 'n',
-          help: 'Show what would be removed without writing files.',
-          negatable: false,)
-      ..addMultiOption('scan',
-          abbr: 's',
-          help: 'Additional package roots to scan for key usage '
-              '(e.g. monorepo siblings). Repeatable.',)
-      ..addFlag('quiet',
-          abbr: 'q',
-          help: 'Print summary only, without listing keys.',
-          negatable: false,);
+      ..addMultiOption(
+        'keep',
+        abbr: 'k',
+        help: 'Keys to always treat as used (comma-separated; '
+            'globs like error_* allowed).',
+      )
+      ..addFlag(
+        'dry-run',
+        abbr: 'n',
+        help: 'Show what would be removed without writing files.',
+        negatable: false,
+      )
+      ..addMultiOption(
+        'scan',
+        abbr: 's',
+        help: 'Additional package roots to scan for key usage '
+            '(e.g. monorepo siblings). Repeatable.',
+      )
+      ..addFlag(
+        'quiet',
+        abbr: 'q',
+        help: 'Print summary only, without listing keys.',
+        negatable: false,
+      );
   }
 
   @override
@@ -144,9 +164,10 @@ class _CleanCommand extends Command<int> {
     final results = argResults!;
     final dryRun = results['dry-run'] as bool;
     final result = await SweepEngine(projectRoot: Directory.current.path).clean(
-        keepPatterns: _keepPatterns(results),
-        scanRoots: _scanRoots(results),
-        dryRun: dryRun,);
+      keepPatterns: _keepPatterns(results),
+      scanRoots: _scanRoots(results),
+      dryRun: dryRun,
+    );
     _reporter(results).clean(result, dryRun: dryRun);
     return result.analysis.hasUnused ? 1 : 0;
   }

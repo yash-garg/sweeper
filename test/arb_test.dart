@@ -100,13 +100,17 @@ void main() {
   test('throws ArbParseException on invalid JSON, naming the file', () {
     expect(
       () => ArbDocument.parse('bad.arb', '{ not json'),
-      throwsA(isA<ArbParseException>()
-          .having((e) => e.message, 'message', contains('bad.arb')),),
+      throwsA(
+        isA<ArbParseException>()
+            .having((e) => e.message, 'message', contains('bad.arb')),
+      ),
     );
   });
 
   test('throws ArbParseException when root is not an object', () {
-    expect(() => ArbDocument.parse('bad.arb', '[1, 2]'),
-        throwsA(isA<ArbParseException>()),);
+    expect(
+      () => ArbDocument.parse('bad.arb', '[1, 2]'),
+      throwsA(isA<ArbParseException>()),
+    );
   });
 }

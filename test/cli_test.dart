@@ -111,7 +111,9 @@ void main() {
     final en =
         File(p.join(tmp.path, 'lib', 'l10n', 'intl_en.arb')).readAsStringSync();
     expect(
-        en.indexOf('"dynamicGreetingA"'), lessThan(en.indexOf('"itemCount"')),);
+      en.indexOf('"dynamicGreetingA"'),
+      lessThan(en.indexOf('"itemCount"')),
+    );
   });
 
   test('unknown command exits nonzero with usage', () {

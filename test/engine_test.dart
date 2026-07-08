@@ -53,8 +53,10 @@ void main() {
     expect(
       () => SweepEngine(projectRoot: fixtureRoot)
           .analyze(keepPatterns: ['[unclosed']),
-      throwsA(isA<KeepPatternException>()
-          .having((e) => e.message, 'message', contains('[unclosed')),),
+      throwsA(
+        isA<KeepPatternException>()
+            .having((e) => e.message, 'message', contains('[unclosed')),
+      ),
     );
   });
 
@@ -65,8 +67,10 @@ void main() {
         .writeAsStringSync('arb-dir: lib/l10n\n');
     expect(
       SweepEngine(projectRoot: tmp.path).analyze,
-      throwsA(isA<SweeperConfigException>()
-          .having((e) => e.message, 'message', contains('app_en.arb')),),
+      throwsA(
+        isA<SweeperConfigException>()
+            .having((e) => e.message, 'message', contains('app_en.arb')),
+      ),
     );
   });
 
@@ -215,8 +219,10 @@ void main() {
     File(badPath).writeAsStringSync('{ not json');
     final before = File(enPath).readAsStringSync();
 
-    await expectLater(SweepEngine(projectRoot: root).clean,
-        throwsA(isA<ArbParseException>()),);
+    await expectLater(
+      SweepEngine(projectRoot: root).clean,
+      throwsA(isA<ArbParseException>()),
+    );
     // The valid file was not touched: all-or-nothing.
     expect(File(enPath).readAsStringSync(), before);
   });

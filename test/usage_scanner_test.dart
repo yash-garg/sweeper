@@ -129,8 +129,10 @@ void main() => print(L10n().fromTool);
     );
     expect(
       scanner.scan,
-      throwsA(isA<UsageScanException>()
-          .having((e) => e.message, 'message', contains('pub get')),),
+      throwsA(
+        isA<UsageScanException>()
+            .having((e) => e.message, 'message', contains('pub get')),
+      ),
     );
   });
 
@@ -149,8 +151,10 @@ void main() => print(L10n().fromTool);
     );
     expect(
       scanner.scan,
-      throwsA(isA<UsageScanException>()
-          .having((e) => e.message, 'message', contains('main.dart')),),
+      throwsA(
+        isA<UsageScanException>()
+            .having((e) => e.message, 'message', contains('main.dart')),
+      ),
     );
   });
 }
