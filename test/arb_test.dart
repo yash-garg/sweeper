@@ -62,9 +62,10 @@ void main() {
     expect(ArbDocument.parse('a.arb', compact).serialize(), compact);
   });
 
-  test('sortKeys orders keys alphabetically, header first, metadata attached',
-      () {
-    const unsorted = '''
+  test(
+    'sortKeys orders keys alphabetically, header first, metadata attached',
+    () {
+      const unsorted = '''
 {
   "@@locale": "en",
   "zebra": "Z",
@@ -75,9 +76,9 @@ void main() {
   "mango": "M"
 }
 ''';
-    final doc = ArbDocument.parse('a.arb', unsorted);
-    expect(doc.sortKeys(), isTrue);
-    expect(doc.serialize(), '''
+      final doc = ArbDocument.parse('a.arb', unsorted);
+      expect(doc.sortKeys(), isTrue);
+      expect(doc.serialize(), '''
 {
   "@@locale": "en",
   "apple": "A",
@@ -88,7 +89,8 @@ void main() {
   }
 }
 ''');
-  });
+    },
+  );
 
   test('sortKeys returns false when already sorted', () {
     const sorted = '{\n  "@@locale": "en",\n  "a": "x",\n  "b": "y"\n}\n';
@@ -101,8 +103,11 @@ void main() {
     expect(
       () => ArbDocument.parse('bad.arb', '{ not json'),
       throwsA(
-        isA<ArbParseException>()
-            .having((e) => e.message, 'message', contains('bad.arb')),
+        isA<ArbParseException>().having(
+          (e) => e.message,
+          'message',
+          contains('bad.arb'),
+        ),
       ),
     );
   });

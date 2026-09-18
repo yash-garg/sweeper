@@ -8,14 +8,15 @@ import 'package:sweeper/src/exceptions.dart';
 import 'package:sweeper/src/reporter.dart';
 
 Future<void> main(List<String> arguments) async {
-  final runner = CommandRunner<int>(
-    'sweeper',
-    'Finds and removes unused gen-l10n translation keys from ARB files '
-        'using resolved static analysis.',
-  )
-    ..addCommand(_CheckCommand())
-    ..addCommand(_CleanCommand())
-    ..addCommand(_SortCommand());
+  final runner =
+      CommandRunner<int>(
+          'sweeper',
+          'Finds and removes unused gen-l10n translation keys from ARB files '
+              'using resolved static analysis.',
+        )
+        ..addCommand(_CheckCommand())
+        ..addCommand(_CleanCommand())
+        ..addCommand(_SortCommand());
 
   try {
     exitCode = await runner.run(arguments) ?? 0;
@@ -40,12 +41,12 @@ List<String> _keepPatterns(ArgResults results) =>
         .toList();
 
 Reporter _reporter(ArgResults results) => Reporter(
-      stdout,
-      ansi: stdout.supportsAnsiEscapes,
-      quiet: results['quiet'] as bool,
-    );
+  stdout,
+  ansi: stdout.supportsAnsiEscapes,
+  quiet: results['quiet'] as bool,
+);
 
-class _SortCommand extends Command<int> {
+final class _SortCommand extends Command<int> {
   _SortCommand() {
     argParser.addFlag(
       'quiet',
@@ -71,13 +72,14 @@ class _SortCommand extends Command<int> {
   }
 }
 
-class _CheckCommand extends Command<int> {
+final class _CheckCommand extends Command<int> {
   _CheckCommand() {
     argParser
       ..addMultiOption(
         'keep',
         abbr: 'k',
-        help: 'Keys to always treat as used (comma-separated; '
+        help:
+            'Keys to always treat as used (comma-separated; '
             'globs like error_* allowed).',
       )
       ..addFlag(
@@ -88,7 +90,8 @@ class _CheckCommand extends Command<int> {
       ..addMultiOption(
         'scan',
         abbr: 's',
-        help: 'Additional package roots to scan for key usage '
+        help:
+            'Additional package roots to scan for key usage '
             '(e.g. monorepo siblings). Repeatable.',
       )
       ..addFlag(
@@ -109,11 +112,11 @@ class _CheckCommand extends Command<int> {
   @override
   Future<int> run() async {
     final results = argResults!;
-    final result =
-        await SweepEngine(projectRoot: Directory.current.path).analyze(
-      keepPatterns: _keepPatterns(results),
-      scanRoots: _scanRoots(results),
-    );
+    final result = await SweepEngine(projectRoot: Directory.current.path)
+        .analyze(
+          keepPatterns: _keepPatterns(results),
+          scanRoots: _scanRoots(results),
+        );
     if (results['json'] as bool) {
       Reporter(stdout).checkJson(result);
     } else {
@@ -123,13 +126,14 @@ class _CheckCommand extends Command<int> {
   }
 }
 
-class _CleanCommand extends Command<int> {
+final class _CleanCommand extends Command<int> {
   _CleanCommand() {
     argParser
       ..addMultiOption(
         'keep',
         abbr: 'k',
-        help: 'Keys to always treat as used (comma-separated; '
+        help:
+            'Keys to always treat as used (comma-separated; '
             'globs like error_* allowed).',
       )
       ..addFlag(
@@ -141,7 +145,8 @@ class _CleanCommand extends Command<int> {
       ..addMultiOption(
         'scan',
         abbr: 's',
-        help: 'Additional package roots to scan for key usage '
+        help:
+            'Additional package roots to scan for key usage '
             '(e.g. monorepo siblings). Repeatable.',
       )
       ..addFlag(

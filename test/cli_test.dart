@@ -14,8 +14,10 @@ ProcessResult runCli(List<String> args, {required String cwd}) =>
 void main() {
   setUpAll(() {
     for (final root in [demoRoot, brokenRoot]) {
-      final result =
-          Process.runSync('dart', ['pub', 'get'], workingDirectory: root);
+      final result = Process.runSync('dart', [
+        'pub',
+        'get',
+      ], workingDirectory: root);
       expect(result.exitCode, 0, reason: result.stderr.toString());
     }
   });
@@ -36,10 +38,11 @@ void main() {
   });
 
   test('check --keep with globs exits 0 when everything is covered', () {
-    final result = runCli(
-      ['check', '--keep', 'dynamicGreeting*,languageName,unused*'],
-      cwd: demoRoot,
-    );
+    final result = runCli([
+      'check',
+      '--keep',
+      'dynamicGreeting*,languageName,unused*',
+    ], cwd: demoRoot);
     expect(result.exitCode, 0, reason: result.stdout.toString());
   });
 
@@ -80,12 +83,18 @@ void main() {
 
   test('check --scan counts usage in an extra package root', () {
     final addonRoot = p.absolute(p.join('test', 'fixtures', 'demo_addon'));
-    final pub =
-        Process.runSync('dart', ['pub', 'get'], workingDirectory: addonRoot);
+    final pub = Process.runSync('dart', [
+      'pub',
+      'get',
+    ], workingDirectory: addonRoot);
     expect(pub.exitCode, 0, reason: pub.stderr.toString());
 
-    final result =
-        runCli(['check', '--json', '--scan', addonRoot], cwd: demoRoot);
+    final result = runCli([
+      'check',
+      '--json',
+      '--scan',
+      addonRoot,
+    ], cwd: demoRoot);
     expect(result.exitCode, 1);
     final decoded = jsonDecode(result.stdout as String);
     expect(decoded['unused'], isNot(contains('unusedPlain')));
@@ -108,8 +117,8 @@ void main() {
     expect(result.exitCode, 0, reason: result.stderr.toString());
     expect(result.stdout, contains('2'));
 
-    final en =
-        File(p.join(tmp.path, 'lib', 'l10n', 'intl_en.arb')).readAsStringSync();
+    final en = File(p.join(tmp.path, 'lib', 'l10n', 'intl_en.arb'))
+        .readAsStringSync();
     expect(
       en.indexOf('"dynamicGreetingA"'),
       lessThan(en.indexOf('"itemCount"')),

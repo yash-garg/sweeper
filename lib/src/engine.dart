@@ -10,67 +10,46 @@ import 'usage_scanner.dart';
 import 'workspace.dart';
 
 /// Thrown when a `--keep` pattern is not a valid glob.
-class KeepPatternException extends SweeperException {
-  KeepPatternException(super.message);
-}
+final class KeepPatternException(super.message) extends SweeperException;
 
 /// The outcome of analyzing a project for unused translation keys.
-class SweepResult {
-  /// Creates a result; see the field docs for the meaning of each value.
-  SweepResult({
-    required this.unusedKeys,
-    required this.totalKeys,
-    required this.scannedFileCount,
-  });
-
+final class SweepResult({
   /// Unused translation keys from the template ARB, sorted.
-  final List<String> unusedKeys;
+  required final List<String> unusedKeys,
 
   /// Total translatable keys in the template ARB.
-  final int totalKeys;
+  required final int totalKeys,
 
   /// Number of Dart files that were resolved and scanned.
-  final int scannedFileCount;
-
+  required final int scannedFileCount,
+}) {
   /// Whether any unused keys were found.
   bool get hasUnused => unusedKeys.isNotEmpty;
 }
 
 /// The outcome of a [SweepEngine.clean] run.
-class CleanResult {
-  /// Creates a result; see the field docs for the meaning of each value.
-  CleanResult({required this.analysis, required this.removedPerFile});
-
+final class CleanResult({
   /// The analysis the removals were based on.
-  final SweepResult analysis;
+  required final SweepResult analysis,
 
   /// ARB file path → number of keys removed from it (sorted by path).
-  final Map<String, int> removedPerFile;
-}
+  required final Map<String, int> removedPerFile,
+});
 
 /// The outcome of a [SweepEngine.sort] run.
-class SortResult {
-  /// Creates a result; see the field docs for the meaning of each value.
-  SortResult({required this.changedPerFile});
-
-  /// ARB file path → whether sorting changed its key order.
-  final Map<String, bool> changedPerFile;
-
+final class SortResult({required final Map<String, bool> changedPerFile}) {
   /// Number of files whose order changed.
   int get changedCount => changedPerFile.values.where((c) => c).length;
 }
 
 /// Orchestrates config loading, scanning, and the unused-key computation:
 /// unused = templateKeys − usedKeys − keepGlobs.
-class SweepEngine {
-  /// Creates an engine for the package at [projectRoot] (the directory
-  /// containing `l10n.yaml` and `pubspec.yaml`). A relative path is
-  /// resolved against the current working directory.
-  SweepEngine({required String projectRoot})
-      : projectRoot = p.normalize(p.absolute(projectRoot));
-
+final class SweepEngine({required String projectRoot}) {
   /// Absolute, normalized path to the project being swept.
-  final String projectRoot;
+  ///
+  /// A relative [projectRoot] (the directory containing `l10n.yaml` and
+  /// `pubspec.yaml`) is resolved against the current working directory.
+  final String projectRoot = p.normalize(p.absolute(projectRoot));
 
   /// Finds unused translation keys without modifying anything.
   ///
@@ -114,10 +93,11 @@ class SweepEngine {
     final keepGlobs = keepPatterns.map(parseGlob).toList();
     bool isKept(String key) => keepGlobs.any((g) => g.matches(key));
 
-    final unused = templateKeys
-        .where((key) => !scan.usedKeys.contains(key) && !isKept(key))
-        .toList()
-      ..sort();
+    final unused =
+        templateKeys
+            .where((key) => !scan.usedKeys.contains(key) && !isKept(key))
+            .toList()
+          ..sort();
 
     return SweepResult(
       unusedKeys: unused,
@@ -138,8 +118,10 @@ class SweepEngine {
     bool dryRun = false,
   }) async {
     final config = SweeperConfig.load(projectRoot);
-    final analysis =
-        await analyze(keepPatterns: keepPatterns, scanRoots: scanRoots);
+    final analysis = await analyze(
+      keepPatterns: keepPatterns,
+      scanRoots: scanRoots,
+    );
 
     final documents = _arbDocuments(config);
 
@@ -182,13 +164,14 @@ class SweepEngine {
     if (!arbDir.existsSync()) {
       throw SweeperConfigException('ARB directory not found: ${config.arbDir}');
     }
-    final arbPaths = arbDir
-        .listSync()
-        .whereType<File>()
-        .map((f) => f.path)
-        .where((path) => path.endsWith('.arb'))
-        .toList()
-      ..sort();
+    final arbPaths =
+        arbDir
+            .listSync()
+            .whereType<File>()
+            .map((f) => f.path)
+            .where((path) => path.endsWith('.arb'))
+            .toList()
+          ..sort();
     return [for (final path in arbPaths) _parseArb(path)];
   }
 

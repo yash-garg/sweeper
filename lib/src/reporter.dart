@@ -4,17 +4,15 @@ import 'engine.dart';
 
 /// The single place sweeper produces output. Writes to an injected sink so
 /// tests never capture stdout.
-class Reporter {
-  Reporter(this._out, {this.ansi = false, this.quiet = false});
-
-  final StringSink _out;
+final class Reporter(
+  final StringSink _out, {
 
   /// Whether to color output with ANSI escapes (auto-detected by the CLI).
-  final bool ansi;
+  final bool ansi = false,
 
   /// When true, print summaries only — no key or per-file listings.
-  final bool quiet;
-
+  final bool quiet = false,
+}) {
   void checkHuman(SweepResult result) {
     if (!result.hasUnused) {
       _out.writeln(_green('✓ No unused translation keys.'));
@@ -22,8 +20,10 @@ class Reporter {
       return;
     }
     _out.writeln(
-      _red('✗ ${result.unusedKeys.length} unused translation '
-          '${_keyWord(result.unusedKeys.length)}${quiet ? '' : ':'}'),
+      _red(
+        '✗ ${result.unusedKeys.length} unused translation '
+        '${_keyWord(result.unusedKeys.length)}${quiet ? '' : ':'}',
+      ),
     );
     if (!quiet) {
       for (final key in result.unusedKeys) {
@@ -84,9 +84,11 @@ class Reporter {
 
   void _writeStats(SweepResult result) {
     _out.writeln(
-      _dim('${result.totalKeys} keys · '
-          '${result.unusedKeys.length} unused · '
-          '${result.scannedFileCount} files scanned'),
+      _dim(
+        '${result.totalKeys} keys · '
+        '${result.unusedKeys.length} unused · '
+        '${result.scannedFileCount} files scanned',
+      ),
     );
   }
 

@@ -6,13 +6,16 @@ import 'package:sweeper/src/config.dart';
 import 'package:sweeper/src/engine.dart';
 import 'package:test/test.dart';
 
-final fixtureRoot =
-    p.normalize(p.absolute(p.join('test', 'fixtures', 'demo_app')));
+final fixtureRoot = p.normalize(
+  p.absolute(p.join('test', 'fixtures', 'demo_app')),
+);
 
 void main() {
   setUpAll(() {
-    final result =
-        Process.runSync('dart', ['pub', 'get'], workingDirectory: fixtureRoot);
+    final result = Process.runSync('dart', [
+      'pub',
+      'get',
+    ], workingDirectory: fixtureRoot);
     expect(result.exitCode, 0, reason: result.stderr.toString());
   });
 
@@ -51,11 +54,15 @@ void main() {
 
   test('invalid keep pattern throws KeepPatternException', () async {
     expect(
-      () => SweepEngine(projectRoot: fixtureRoot)
-          .analyze(keepPatterns: ['[unclosed']),
+      () =>
+          SweepEngine(projectRoot: fixtureRoot)
+              .analyze(keepPatterns: ['[unclosed']),
       throwsA(
-        isA<KeepPatternException>()
-            .having((e) => e.message, 'message', contains('[unclosed')),
+        isA<KeepPatternException>().having(
+          (e) => e.message,
+          'message',
+          contains('[unclosed'),
+        ),
       ),
     );
   });
@@ -68,8 +75,11 @@ void main() {
     expect(
       SweepEngine(projectRoot: tmp.path).analyze,
       throwsA(
-        isA<SweeperConfigException>()
-            .having((e) => e.message, 'message', contains('app_en.arb')),
+        isA<SweeperConfigException>().having(
+          (e) => e.message,
+          'message',
+          contains('app_en.arb'),
+        ),
       ),
     );
   });
@@ -88,8 +98,10 @@ void main() {
         entity.copySync(target);
       }
     }
-    final pub =
-        Process.runSync('dart', ['pub', 'get'], workingDirectory: tmp.path);
+    final pub = Process.runSync('dart', [
+      'pub',
+      'get',
+    ], workingDirectory: tmp.path);
     expect(pub.exitCode, 0, reason: pub.stderr.toString());
     return tmp.path;
   }
@@ -140,8 +152,8 @@ void main() {
     final enBefore = File(enPath).readAsStringSync();
 
     // Keep everything: nothing is unused, so nothing may be rewritten.
-    final result =
-        await SweepEngine(projectRoot: root).clean(keepPatterns: ['*']);
+    final result = await SweepEngine(projectRoot: root)
+        .clean(keepPatterns: ['*']);
     expect(result.analysis.hasUnused, isFalse);
     expect(File(dePath).readAsStringSync(), before);
     expect(File(enPath).readAsStringSync(), enBefore);
@@ -151,17 +163,20 @@ void main() {
     final root = copyFixtureToTemp();
     await SweepEngine(projectRoot: root)
         .clean(keepPatterns: ['dynamicGreeting*']);
-    final en =
-        File(p.join(root, 'lib', 'l10n', 'intl_en.arb')).readAsStringSync();
+    final en = File(p.join(root, 'lib', 'l10n', 'intl_en.arb'))
+        .readAsStringSync();
     expect(en, contains('"dynamicGreetingA"'));
     expect(en, isNot(contains('"unusedKey"')));
   });
 
   test('scanRoots includes usage from sibling packages', () async {
-    final addonRoot =
-        p.normalize(p.absolute(p.join('test', 'fixtures', 'demo_addon')));
-    final pub =
-        Process.runSync('dart', ['pub', 'get'], workingDirectory: addonRoot);
+    final addonRoot = p.normalize(
+      p.absolute(p.join('test', 'fixtures', 'demo_addon')),
+    );
+    final pub = Process.runSync('dart', [
+      'pub',
+      'get',
+    ], workingDirectory: addonRoot);
     expect(pub.exitCode, 0, reason: pub.stderr.toString());
 
     final result = await SweepEngine(projectRoot: fixtureRoot)
@@ -175,20 +190,25 @@ void main() {
     ]);
   });
 
-  test('pub workspace members are discovered and scanned automatically',
-      () async {
-    final wsRoot =
-        p.normalize(p.absolute(p.join('test', 'fixtures', 'workspace_repo')));
-    final pub =
-        Process.runSync('dart', ['pub', 'get'], workingDirectory: wsRoot);
-    expect(pub.exitCode, 0, reason: pub.stderr.toString());
+  test(
+    'pub workspace members are discovered and scanned automatically',
+    () async {
+      final wsRoot = p.normalize(
+        p.absolute(p.join('test', 'fixtures', 'workspace_repo')),
+      );
+      final pub = Process.runSync('dart', [
+        'pub',
+        'get',
+      ], workingDirectory: wsRoot);
+      expect(pub.exitCode, 0, reason: pub.stderr.toString());
 
-    // Runs against the member package; usage in the sibling member and the
-    // root-level package_config must both be found without any flags.
-    final result =
-        await SweepEngine(projectRoot: p.join(wsRoot, 'app')).analyze();
-    expect(result.unusedKeys, ['neverUsed']);
-  });
+      // Runs against the member package; usage in the sibling member and the
+      // root-level package_config must both be found without any flags.
+      final result = await SweepEngine(projectRoot: p.join(wsRoot, 'app'))
+          .analyze();
+      expect(result.unusedKeys, ['neverUsed']);
+    },
+  );
 
   test('sort orders all ARB files and reports which changed', () async {
     final root = copyFixtureToTemp();
@@ -199,10 +219,10 @@ void main() {
     expect(result.changedPerFile, {dePath: true, enPath: true});
 
     final de = File(dePath).readAsStringSync();
-    final deKeys = RegExp(r'^  "([^@"][^"]*)":', multiLine: true)
-        .allMatches(de)
-        .map((m) => m.group(1))
-        .toList();
+    final deKeys = RegExp(
+      r'^  "([^@"][^"]*)":',
+      multiLine: true,
+    ).allMatches(de).map((m) => m.group(1)).toList();
     expect(deKeys, ['germanOnly', 'languageName', 'unusedKey', 'usedDirect']);
     // Metadata still attached to its key.
     expect(de.indexOf('"@unusedKey"'), greaterThan(de.indexOf('"unusedKey"')));

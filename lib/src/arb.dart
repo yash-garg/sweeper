@@ -2,16 +2,14 @@ import 'dart:convert';
 
 import 'exceptions.dart';
 
-class ArbParseException extends SweeperException {
-  ArbParseException(super.message);
-}
+final class ArbParseException(super.message) extends SweeperException;
 
 /// An ARB file held in memory, preserving key order, indentation, and
 /// trailing-newline style so a rewrite only changes what was removed.
-class ArbDocument {
+final class ArbDocument {
   ArbDocument._(this.path, this._entries, this._indent, this._trailingNewline);
 
-  factory ArbDocument.parse(String path, String content) {
+  factory parse(String path, String content) {
     final Object? decoded;
     try {
       decoded = jsonDecode(content);
@@ -76,13 +74,8 @@ class ArbDocument {
     return changed;
   }
 
-  static bool _listEquals(List<String> a, List<String> b) {
-    if (a.length != b.length) return false;
-    for (var i = 0; i < a.length; i++) {
-      if (a[i] != b[i]) return false;
-    }
-    return true;
-  }
+  static bool _listEquals(List<String> a, List<String> b) =>
+      a.length == b.length && a.indexed.every((r) => r.$2 == b[r.$1]);
 
   String serialize() {
     final body = JsonEncoder.withIndent(_indent).convert(_entries);

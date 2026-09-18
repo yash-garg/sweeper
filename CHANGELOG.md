@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.0
+
+- Requires Dart 3.13 or later.
+- Internal code modernisation; no functional changes.
+
 ## 0.4.2
 
 - Internal: stricter lint rules and style cleanups; no functional changes.

@@ -11,57 +11,46 @@ import 'package:path/path.dart' as p;
 import 'exceptions.dart';
 import 'workspace.dart';
 
-class UsageScanException extends SweeperException {
-  UsageScanException(super.message);
-}
+final class UsageScanException(super.message) extends SweeperException;
 
-class UsageScanResult {
-  UsageScanResult({required this.usedKeys, required this.scannedFileCount});
-
-  final Set<String> usedKeys;
-  final int scannedFileCount;
-}
+final class UsageScanResult({
+  required final Set<String> usedKeys,
+  required final int scannedFileCount,
+});
 
 /// Finds translation keys that are used, by fully resolving the project and
 /// collecting every reference whose element is a getter or method declared
 /// on the class named [outputClass] (or a subclass of it).
 ///
 /// Fail-closed: any file that cannot be resolved cleanly aborts the scan.
-class UsageScanner {
-  UsageScanner({
-    required this.projectRoot,
-    required this.outputClass,
-    required this.excludedDir,
-    required this.outputFileStem,
-    this.extraRoots = const [],
-  });
+final class UsageScanner({
+  required final String projectRoot,
+  required final String outputClass,
 
-  final String projectRoot;
-  final String outputClass;
+  /// Generated-code directory (gen-l10n `output-dir`); generated files in
+  /// it are skipped so the generated class's own code never counts as
+  /// usage.
+  required final String excludedDir,
 
   /// Basename (without extension) of the generated localizations file
   /// (gen-l10n `output-localization-file`). Only `<stem>.dart` and
   /// `<stem>_<locale>.dart` inside [excludedDir] are skipped, so
   /// hand-written Dart files living in the same directory still count
   /// as usage.
-  final String outputFileStem;
+  required final String outputFileStem,
 
   /// Additional package roots (e.g. monorepo siblings) whose sources are
   /// also scanned for usage.
-  final List<String> extraRoots;
-
-  /// Generated-code directory (gen-l10n `output-dir`); generated files in
-  /// it are skipped so the generated class's own code never counts as
-  /// usage.
-  final String excludedDir;
-
+  final List<String> extraRoots = const [],
+}) {
   static const _scanRoots = ['lib', 'bin', 'test', 'integration_test', 'tool'];
 
   Future<UsageScanResult> scan() async {
     if (findPackageConfig(projectRoot) == null) {
       throw UsageScanException(
-          'No .dart_tool/package_config.json found for $projectRoot. '
-          'Run `dart pub get` (or `flutter pub get`) first.');
+        'No .dart_tool/package_config.json found for $projectRoot. '
+        'Run `dart pub get` (or `flutter pub get`) first.',
+      );
     }
 
     for (final root in extraRoots) {
@@ -76,8 +65,10 @@ class UsageScanner {
           if (Directory(dir).existsSync()) dir,
     ];
     if (includedPaths.isEmpty) {
-      throw UsageScanException('No Dart source directories found to scan '
-          '(looked for ${_scanRoots.join(', ')} in $projectRoot).');
+      throw UsageScanException(
+        'No Dart source directories found to scan '
+        '(looked for ${_scanRoots.join(', ')} in $projectRoot).',
+      );
     }
 
     final collection = AnalysisContextCollection(includedPaths: includedPaths);
@@ -90,17 +81,20 @@ class UsageScanner {
         if (_isGeneratedFile(path)) continue;
         final result = await context.currentSession.getResolvedUnit(path);
         if (result is! ResolvedUnitResult) {
-          throw UsageScanException('Could not resolve $path '
-              '(${result.runtimeType}). Aborting: results would be '
-              'unreliable.');
+          throw UsageScanException(
+            'Could not resolve $path '
+            '(${result.runtimeType}). Aborting: results would be '
+            'unreliable.',
+          );
         }
         final firstError = result.diagnostics
             .where((d) => d.severity == Severity.error)
             .firstOrNull;
         if (firstError != null) {
           throw UsageScanException(
-              'Analysis error in $path: ${firstError.message}\n'
-              'sweeper fails closed: fix analysis errors and rerun.');
+            'Analysis error in $path: ${firstError.message}\n'
+            'sweeper fails closed: fix analysis errors and rerun.',
+          );
         }
         scannedFileCount++;
         result.unit.accept(_UsageVisitor(outputClass, excludedDir, usedKeys));
@@ -123,27 +117,24 @@ class UsageScanner {
   }
 }
 
-class _UsageVisitor extends RecursiveAstVisitor<void> {
-  _UsageVisitor(this.outputClass, this.generatedDir, this.usedKeys);
-
-  final String outputClass;
+final class _UsageVisitor(
+  final String outputClass,
 
   /// Directory the generated localizations code lives in (`output-dir`).
-  final String generatedDir;
-
-  final Set<String> usedKeys;
-
+  final String generatedDir,
+  final Set<String> usedKeys,
+) extends RecursiveAstVisitor<void> {
   @override
   void visitSimpleIdentifier(SimpleIdentifier node) {
     // Covers PropertyAccess.propertyName, PrefixedIdentifier.identifier,
     // MethodInvocation.methodName, and tear-offs: all reference sites end
     // in a SimpleIdentifier whose `element` is the resolved declaration.
-    final element = node.element;
     // Static members (e.g. the generated `of` factory) are never
     // translation keys — only instance getters/methods are.
-    if (element is ExecutableElement && !element.isStatic) {
-      final enclosing = element.enclosingElement;
-      if (enclosing is InterfaceElement && _isLocalizationsClass(enclosing)) {
+    if (node.element case final ExecutableElement element
+        when !element.isStatic) {
+      if (element.enclosingElement case final InterfaceElement enclosing
+          when _isLocalizationsClass(enclosing)) {
         usedKeys.add(element.displayName);
       }
     }

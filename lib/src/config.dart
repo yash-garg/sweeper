@@ -5,44 +5,35 @@ import 'package:yaml/yaml.dart';
 
 import 'exceptions.dart';
 
-class SweeperConfigException extends SweeperException {
-  SweeperConfigException(super.message);
-}
+final class SweeperConfigException(super.message) extends SweeperException;
 
 /// gen-l10n settings sweeper needs, read from `l10n.yaml`.
-class SweeperConfig {
-  SweeperConfig({
-    required this.arbDir,
-    required this.templateArbPath,
-    required this.outputClass,
-    required this.outputDir,
-    required this.outputFileStem,
-  });
-
+final class SweeperConfig({
   /// Absolute path to the directory containing `.arb` files.
-  final String arbDir;
+  required final String arbDir,
 
   /// Absolute path to the template `.arb` file (the canonical key list).
-  final String templateArbPath;
+  required final String templateArbPath,
 
   /// Name of the generated localizations class (e.g. `AppLocalizations`).
-  final String outputClass;
+  required final String outputClass,
 
   /// Absolute path to the generated-code directory (excluded from scanning).
-  final String outputDir;
+  required final String outputDir,
 
   /// Basename of the generated localizations file without its extension
   /// (e.g. `app_localizations`). gen-l10n writes `<stem>.dart` plus
   /// `<stem>_<locale>.dart` per locale into [outputDir]; only those files
   /// are excluded from usage scanning.
-  final String outputFileStem;
-
+  required final String outputFileStem,
+}) {
   static SweeperConfig load(String projectRoot) {
     final file = File(p.join(projectRoot, 'l10n.yaml'));
     if (!file.existsSync()) {
       throw SweeperConfigException(
-          'No l10n.yaml found in $projectRoot. sweeper requires a '
-          'flutter_localizations/gen-l10n setup.');
+        'No l10n.yaml found in $projectRoot. sweeper requires a '
+        'flutter_localizations/gen-l10n setup.',
+      );
     }
     final Object? yaml;
     try {
@@ -50,27 +41,28 @@ class SweeperConfig {
     } on YamlException catch (e) {
       throw SweeperConfigException('Could not parse l10n.yaml: ${e.message}');
     }
-    if (yaml != null && yaml is! YamlMap) {
-      throw SweeperConfigException('l10n.yaml must be a YAML map.');
-    }
-    final map = yaml as YamlMap?;
+    final map = switch (yaml) {
+      YamlMap() && final YamlMap m => m,
+      null => null,
+      _ => throw SweeperConfigException('l10n.yaml must be a YAML map.'),
+    };
 
-    String? readString(String key) {
-      final value = map?[key];
-      if (value == null) return null;
-      if (value is! String) {
-        throw SweeperConfigException('l10n.yaml: "$key" must be a string.');
-      }
-      return value;
-    }
+    String? readString(String key) => switch (map?[key]) {
+      null => null,
+      final String s => s,
+      _ => throw SweeperConfigException('l10n.yaml: "$key" must be a string.'),
+    };
 
-    final arbDir =
-        p.normalize(p.join(projectRoot, readString('arb-dir') ?? 'lib/l10n'));
+    final arbDir = p.normalize(
+      p.join(projectRoot, readString('arb-dir') ?? 'lib/l10n'),
+    );
     final outputDirValue = readString('output-dir');
     return SweeperConfig(
       arbDir: arbDir,
-      templateArbPath:
-          p.join(arbDir, readString('template-arb-file') ?? 'app_en.arb'),
+      templateArbPath: p.join(
+        arbDir,
+        readString('template-arb-file') ?? 'app_en.arb',
+      ),
       outputClass: readString('output-class') ?? 'AppLocalizations',
       outputDir: outputDirValue == null
           ? arbDir
